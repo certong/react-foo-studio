@@ -51,8 +51,8 @@ export function TopBar(props: TopBarProps) {
   const current = active ?? navKeyFor(pathname);
 
   const onSignOut = () => {
-    signOut();
-    navigate(routes.welcome);
+    // Welcome back (PIN unlock) returns with FA-23; until then signing out goes to Sign in.
+    signOut().finally(() => navigate(routes.signIn));
   };
 
   return (

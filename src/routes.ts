@@ -1,7 +1,7 @@
 /** Route paths for every screen. FS ticket in comments. */
 export const routes = {
   signIn: '/sign-in', // FS-70
-  welcome: '/welcome', // FS-71
+  welcome: '/welcome', // FS-71 — redirects to Sign in until FA-23 (device unlock)
   home: '/', // FS-72
   requests: '/requests', // FS-73
   history: '/requests/past', // FS-74

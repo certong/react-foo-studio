@@ -25,7 +25,7 @@ Each mode's backends live in a tracked env file. They're public values only, bec
 
 A build stops with an error when its mode has no API or auth URL, so a blank host can't ship. The dev server always runs on port **5182**, the studio origin nest-foo-auth allows. `VITE_USE_MOCK_API=true` keeps the screens on the built-in mock until they're wired to the real API.
 
-Sign in with **mei@kopilane.com**, PIN **123456**. Any other PIN shows the "didn't match" error. After 5 wrong tries in a minute the PIN is locked for a minute.
+Sign-in goes to **nest-foo-auth** with email + password (FS-87). The access token is held in memory, and Foo-Auth's 12-hour refresh cookie keeps you signed in across reloads. Locally that's `npm run start:local`, with nest-foo-auth on 3001 and its database running. With no auth service, set `VITE_USE_MOCK_AUTH=true` and use the demo account **mei@kopilane.com** / **kopilane**. Email + PIN, "remember this device" and Welcome back need FA-23 in nest-foo-auth first.
 
 ## Branches
 
