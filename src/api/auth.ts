@@ -196,6 +196,18 @@ function refresh(): Promise<boolean> {
   return refreshing;
 }
 
+/**
+ * For the Studio API's 401 TOKEN_EXPIRED: a new access token from the refresh cookie, then the call
+ * can be retried. False (and the session ends) when the cookie no longer works. The mock has no
+ * token to refresh.
+ */
+export async function refreshAccessToken(): Promise<boolean> {
+  if (useMock) return false;
+  const ok = await refresh();
+  if (!ok) onExpired?.();
+  return ok;
+}
+
 /** Sign in: email + PIN. `rememberDevice` makes the next visit Welcome back (PIN only) for 30 days. */
 export async function pinLogin(email: string, pin: string, rememberDevice: boolean): Promise<AuthUser> {
   if (useMock) {

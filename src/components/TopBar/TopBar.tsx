@@ -1,11 +1,11 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { session } from '@/data/seed';
-import { useStudio } from '@/state/studio';
-import { creditSplit } from '@/lib/credits';
-import type { Credits } from '@/data/types';
+import { useMe } from '@/state/me';
+import type { MeError } from '@/api/me';
+import type { CreditsBlock } from '@/data/types';
 import { IconButton } from '@/components/Button';
 import { useSession } from '@/state/session';
 import { routes } from '@/routes';
+import { cx } from '@/lib/cx';
 import s from './TopBar.module.css';
 
 export type NavKey = 'home' | 'requests' | 'credits' | 'chat';
@@ -29,13 +29,13 @@ export function navKeyFor(pathname: string): NavKey | undefined {
 interface TopBarProps {
   /** Defaults to the item matching the current URL. */
   active?: NavKey;
-  /** Overrides the stored credits, e.g. for the low-credit sample on /kit. */
-  credits?: Partial<Credits>;
+  /** Shows these credits instead of the account's, e.g. the low-credit sample on /kit. */
+  credits?: CreditsBlock;
 }
 
+/** The bar on every signed-in page. Workspace, site and credits come from GET /portal/me (FS-86). */
 export function TopBar({ active, credits: override }: TopBarProps) {
-  const stored = useStudio().credits;
-  const credits = { ...stored, ...override };
+  const { me, loading, error } = useMe();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { signOut } = useSession();
@@ -50,7 +50,7 @@ export function TopBar({ active, credits: override }: TopBarProps) {
     <header className={s.bar}>
       <Link to={routes.home} className={s.brand}>
         <strong>Studio</strong>
-        <span>{session.business}</span>
+        {me && <span>{me.workspace.name}</span>}
       </Link>
 
       <nav className={s.nav} aria-label="Main">
@@ -64,13 +64,15 @@ export function TopBar({ active, credits: override }: TopBarProps) {
             {item.label}
           </Link>
         ))}
-        <a className={s.navLink} href={`https://${session.site}`} target="_blank" rel="noopener noreferrer">
-          My site ↗
-        </a>
+        {me?.workspace.site && (
+          <a className={s.navLink} href={`https://${me.workspace.site}`} target="_blank" rel="noopener noreferrer">
+            My site ↗
+          </a>
+        )}
       </nav>
 
       <div className={s.right}>
-        <CreditMeter credits={credits} />
+        {override ? <CreditMeter credits={override} /> : me ? <CreditMeter credits={me.credits} /> : <MeterNote text={noteFor(loading, error)} busy={loading} />}
         <IconButton label="Sign out" onClick={onSignOut}>
           <SignOutIcon />
         </IconButton>
@@ -79,28 +81,55 @@ export function TopBar({ active, credits: override }: TopBarProps) {
   );
 }
 
+/** What the meter says while there are no credits to show. */
+function noteFor(loading: boolean, error: MeError | null): string {
+  if (loading) return 'Loading credits…';
+  if (!error) return 'Credits';
+  // A valid account that has no Studio workspace yet (FS-86 → 404).
+  if (error.code === 'NOT_FOUND') return 'No workspace yet';
+  return 'Credits unavailable';
+}
+
 /**
  * Header credits (spec sheet): total free, a monthly-only bar (its length always means the monthly plan),
  * a "+N" pill for top-up credits, and the monthly · top-up split underneath.
  */
-function CreditMeter({ credits }: { credits: Credits }) {
-  const { total, monthlyFree, topUp } = creditSplit(credits);
-  const pct = (n: number) => ({ width: `${(Math.max(0, n) / credits.monthly) * 100}%` });
+function CreditMeter({ credits }: { credits: CreditsBlock }) {
+  const { free, monthly, topup, held } = credits;
+  // Holds come out of the monthly bucket first (FS-86), so the bar's held segment is whatever
+  // monthly free and used leave of the grant; any top-up part of a hold isn't on this bar.
+  const heldMonthly = Math.max(0, monthly.grant - monthly.used - monthly.free);
+  const pct = (n: number) => ({ width: monthly.grant > 0 ? `${(Math.max(0, n) / monthly.grant) * 100}%` : '0%' });
+  const label = `${free} credits free: ${monthly.free} monthly, ${topup.free} top-up${held > 0 ? `, ${held} set aside` : ''}`;
   return (
-    <Link to={routes.credits} className={s.meter} aria-label={`${total} credits free: ${monthlyFree} monthly, ${topUp} top-up`}>
+    <Link to={routes.credits} className={s.meter} aria-label={label}>
       <span className={s.meterTotal}>
-        <strong className="num">{total}</strong> free
+        <strong className="num">{free}</strong> free
       </span>
       <span className={s.meterRow} aria-hidden="true">
         <span className={s.meterBar}>
-          {monthlyFree > 0 && <span className={s.meterFree} style={pct(monthlyFree)} />}
-          {credits.setAside > 0 && <span className={s.meterHeld} style={pct(credits.setAside)} />}
+          {monthly.free > 0 && <span className={s.meterFree} style={pct(monthly.free)} />}
+          {heldMonthly > 0 && <span className={s.meterHeld} style={pct(heldMonthly)} />}
           <span className={s.meterUsed} />
         </span>
-        {topUp > 0 && <span className={s.meterTopUp}>+{topUp}</span>}
+        {topup.free > 0 && <span className={s.meterTopUp}>+{topup.free}</span>}
       </span>
       <span className={s.meterSplit}>
-        {monthlyFree} monthly · {topUp} top-up
+        {monthly.free} monthly · {topup.free} top-up
+      </span>
+    </Link>
+  );
+}
+
+/** The meter's place while /portal/me is loading, failed, or nobody is signed in: same width, empty bar. */
+function MeterNote({ text, busy }: { text: string; busy: boolean }) {
+  return (
+    <Link to={routes.credits} className={cx(s.meter, s.meterNote)} aria-busy={busy || undefined}>
+      <span className={s.meterTotal}>{text}</span>
+      <span className={s.meterRow} aria-hidden="true">
+        <span className={s.meterBar}>
+          <span className={s.meterUsed} />
+        </span>
       </span>
     </Link>
   );

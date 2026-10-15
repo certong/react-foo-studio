@@ -203,4 +203,6 @@ export interface MockData {
 /** What screens read: the same data, with every request mapped to the contract shape. */
 export interface StudioData extends Omit<MockData, 'requests'> {
   requests: StudioRequest[];
+  /** GET /portal/me as the API shapes it, from the credits above and the demo account. */
+  me: MeResponse;
 }

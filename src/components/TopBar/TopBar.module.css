@@ -32,3 +32,4 @@
 .meterUsed { flex: 1; background: var(--credit-used); }
 .meterTopUp { padding: 0 6px; border-radius: var(--r-pill); background: var(--topup-bg); color: var(--topup-ink); font-size: 11px; line-height: 1.3; font-weight: 600; }
 .meterSplit { font-size: 11px; line-height: 1.1; color: var(--muted); }
+.meterNote .meterTotal { color: var(--muted); }

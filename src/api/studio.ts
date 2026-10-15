@@ -2,9 +2,10 @@
  * Mock Studio API. Holds the data in memory (persisted to localStorage) and exposes async calls with
  * realistic latency, so screens are written against an API shape that a real backend can replace.
  */
-import { PRICES, seedData, sketchPlan } from '@/data/seed';
-import type { Attachment, ChatMessage, LedgerEntry, MockData, PageBlock, RequestRow, RequestType, StudioData, Thread } from '@/data/types';
+import { PRICES, seedData, session, sketchPlan } from '@/data/seed';
+import type { Attachment, ChatMessage, LedgerEntry, MeResponse, MockData, PageBlock, RequestRow, RequestType, StudioData, Thread } from '@/data/types';
 import { mapStatus } from './mock/status';
+import { creditSplit } from '@/lib/credits';
 import { addDays, addWorkingDays, formatShort, shortDay, today, toIsoDay } from '@/lib/date';
 
 const STORAGE_KEY = 'studio.data.v4'; // v4: 95 top-up credits in the seed (spec sheet State B)
@@ -62,7 +63,30 @@ function toView(data: MockData): StudioData {
       ...row,
       ...mapStatus({ status: row.status, closeReason: row.closeReason, type: row.type, stoppedAt }),
     })),
+    me: toMe(data),
   };
+}
+
+/** GET /portal/me (FS-86) from the mock's credits: holds come out of the monthly bucket first. */
+function toMe(data: MockData): MeResponse {
+  const c = data.credits;
+  const { monthlyFree, topUp } = creditSplit(c);
+  return {
+    account: { name: session.fullName, email: session.email },
+    workspace: { name: session.business, status: 'active', site: session.site },
+    credits: {
+      free: c.free,
+      monthly: { free: monthlyFree, grant: c.monthly, used: c.used, resetOn: c.resetDate },
+      topup: { free: topUp, neverExpires: true },
+      held: c.setAside,
+      heldFor: data.requests.filter((r) => r.creditsHeld > 0).map((r) => ({ requestId: r.id, credits: r.creditsHeld })),
+    },
+  };
+}
+
+/** The mock's answer to GET /portal/me. */
+export function getMe(): MeResponse {
+  return view.me;
 }
 
 /** Stable between changes, so useSyncExternalStore only re-renders when data actually changes. */
