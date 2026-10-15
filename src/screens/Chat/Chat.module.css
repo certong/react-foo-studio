@@ -1,21 +1,27 @@
 .hero { gap: 10px; }
 .heroMeta { font-size: 15px; color: var(--muted); }
 
-.startMain { padding: 72px 64px 32px 32px; gap: 28px; }
+.startMain { padding: 72px 64px 40px 32px; gap: 28px; }
 .h1 { margin: 0; font-size: 44px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; text-wrap: balance; }
 .choices { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
-.choice { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--line); color: var(--ink); transition: background-color 160ms ease, padding 200ms var(--ease-out); }
-.choice:hover { background: var(--secondary-hover); color: var(--ink); padding-left: 12px; }
-.choice:hover .choiceArrow { transform: translateX(4px); }
-.choiceNo { font-size: 36px; font-weight: 600; letter-spacing: -0.04em; }
+.choice { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--line); border-radius: 0; color: var(--ink); transition: background-color 220ms ease, padding 260ms var(--ease-slide), border-radius 220ms ease; }
+.choice:hover { background: var(--secondary-hover); color: var(--ink); padding: 20px 16px; border-radius: var(--r-btn); }
+.choice:hover .choiceNo { color: var(--link); }
+.choice:hover .choiceArrow { transform: translateX(6px); }
+.choiceNo { font-size: 36px; font-weight: 600; letter-spacing: -0.04em; transition: color 200ms ease; }
 .choiceBody { display: flex; flex-direction: column; gap: 4px; }
-.choiceTitle { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+.choiceTitle { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; }
+.choiceTitle > * { flex: none; }
 .choiceDesc { font-size: 15px; color: var(--muted); }
-.choiceArrow { padding-right: 12px; font-size: 24px; transition: transform 200ms var(--ease-out); }
+.choiceArrow { font-size: 24px; transition: transform 260ms var(--ease-slide); }
 
+aside.ideasAside { gap: 14px; }
 .ideas { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.idea { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--r-btn); background: #fff; color: var(--ink); font-size: 15px; white-space: nowrap; text-align: left; transition: border-color 160ms ease; }
+.idea { display: flex; align-items: center; justify-content: flex-start; width: 100%; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--r-btn); background: #fff; color: var(--ink); font-size: 15px; white-space: nowrap; text-align: left; transition: border-color 160ms ease; }
 .idea:hover { border-color: var(--ink); }
+/* Label only; the Arrow slides in on hover like the buttons. */
+.idea::after { content: '→' / ''; display: inline-block; max-width: 0; opacity: 0; overflow: hidden; transform: translateX(-4px); transition: max-width 200ms ease, opacity 160ms ease, transform 200ms ease, margin 200ms ease; }
+.idea:hover::after { max-width: 1.2em; opacity: 1; transform: none; margin-left: 6px; }
 
 .threadMain { padding: 56px 64px 32px 32px; gap: 20px; }
 .threadHero { padding-top: 56px; }

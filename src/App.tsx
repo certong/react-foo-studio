@@ -4,6 +4,7 @@ import { useDemoFlags } from '@/state/useDemoFlags';
 import { routes } from '@/routes';
 import { Kit } from '@/screens/Kit';
 import { SignIn } from '@/screens/SignIn/SignIn';
+import { Welcome } from '@/screens/Welcome/Welcome';
 import { Home } from '@/screens/Home/Home';
 import { Requests } from '@/screens/Requests/Requests';
 import { History } from '@/screens/History/History';
@@ -23,8 +24,7 @@ export function App() {
     <Routes>
       <Route path={routes.kit} element={<Kit />} />
       <Route path={routes.signIn} element={<SignIn />} />
-      {/* Welcome back (PIN unlock) returns with FA-23 in nest-foo-auth. */}
-      <Route path={routes.welcome} element={<Navigate to={routes.signIn} replace />} />
+      <Route path={routes.welcome} element={<Welcome />} />
 
       <Route element={<RequireAuth />}>
         <Route path={routes.home} element={<Home />} />

@@ -25,7 +25,7 @@ Each mode's backends live in a tracked env file. They're public values only, bec
 
 A build stops with an error when its mode has no API or auth URL, so a blank host can't ship. The dev server always runs on port **5182**, the studio origin nest-foo-auth allows. `VITE_USE_MOCK_API=true` keeps the screens on the built-in mock until they're wired to the real API.
 
-Sign-in goes to **nest-foo-auth** with email + password (FS-87). The access token is held in memory, and Foo-Auth's 12-hour refresh cookie keeps you signed in across reloads. Locally that's `npm run start:local`, with nest-foo-auth on 3001 and its database running. With no auth service, set `VITE_USE_MOCK_AUTH=true` and use the demo account **mei@kopilane.com** / **kopilane**. Email + PIN, "remember this device" and Welcome back need FA-23 in nest-foo-auth first.
+Sign-in goes to **nest-foo-auth** with email + 6-digit PIN (FS-70, FS-87). Ticking "Remember this device" makes the next visit **Welcome back**, which asks for the PIN only (FS-71). The access token is held in memory, and Foo-Auth's 12-hour refresh cookie keeps you signed in across reloads. The endpoints this needs (`pin-login`, `device`, `device-unlock`, `device/forget`) aren't in nest-foo-auth yet: the contract is in nest-foo-auth's `docs/handoff/2026-10-15-studio-email-pin.md` (per-account PIN + FA-23). Until they ship, set `VITE_USE_MOCK_AUTH=true` and use the demo account **mei@kopilane.com** / PIN **123456**. The mock follows the same contract, including the 5-try lockout and the remembered device.
 
 ## Branches
 
@@ -54,7 +54,7 @@ Both read `../../Nest/nest-foo-studio/openapi.json` by default; set `OPENAPI_FIL
 
 ## Mock API
 
-There's no backend yet. [`src/api/studio.ts`](src/api/studio.ts) is a mock API that keeps its data in memory, saves it to `localStorage` (`studio.data.v2`) and adds realistic delays. [`src/api/auth.ts`](src/api/auth.ts) does the same for sign-in. Screens only use these async calls, so a real backend can replace them without touching the screens.
+There's no backend yet. [`src/api/studio.ts`](src/api/studio.ts) is a mock API that keeps its data in memory, saves it to `localStorage` (`studio.data.v4`) and adds realistic delays. [`src/api/auth.ts`](src/api/auth.ts) does the same for sign-in. Screens only use these async calls, so a real backend can replace them without touching the screens.
 
 "Today" is fixed to Wed 14 Oct 2026 so the seed data matches the designs (`DEMO_TODAY` in [`src/lib/date.ts`](src/lib/date.ts)).
 

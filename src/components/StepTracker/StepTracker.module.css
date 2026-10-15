@@ -3,14 +3,14 @@
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   margin: 0;
   padding: 4px 0 0;
   list-style: none;
 }
 .step { display: flex; flex-direction: column; gap: 4px; }
-.node { position: relative; height: 14px; display: flex; align-items: center; }
-.line { position: absolute; left: 7px; right: -7px; top: 6px; height: 2px; background: var(--tracker-line); }
+.node { position: relative; height: 12px; display: flex; align-items: center; }
+.line { position: absolute; left: 6px; right: -6px; top: 5px; height: 2px; background: var(--tracker-line); }
 .step:last-child .line { display: none; }
 /* Long labels ("Ready to Check") wrap onto a second line instead of running into the next step. */
 .label { padding-right: 6px; font-size: var(--fs-tracker); line-height: 1.25; letter-spacing: 0.01em; color: var(--muted); }

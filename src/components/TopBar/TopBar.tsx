@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { session } from '@/data/seed';
 import { useStudio } from '@/state/studio';
+import { creditSplit } from '@/lib/credits';
+import type { Credits } from '@/data/types';
 import { IconButton } from '@/components/Button';
 import { useSession } from '@/state/session';
 import { routes } from '@/routes';
@@ -27,32 +29,21 @@ export function navKeyFor(pathname: string): NavKey | undefined {
 interface TopBarProps {
   /** Defaults to the item matching the current URL. */
   active?: NavKey;
-  /** Credits free right now. */
-  free?: number;
-  /** Credits currently set aside. */
-  setAside?: number;
-  /** Credits used this month. Defaults to whatever the free and set-aside counts leave over. */
-  used?: number;
-  monthly?: number;
+  /** Overrides the stored credits, e.g. for the low-credit sample on /kit. */
+  credits?: Partial<Credits>;
 }
 
-export function TopBar(props: TopBarProps) {
-  const { credits } = useStudio();
-  const {
-    active,
-    free = credits.free,
-    setAside = credits.setAside,
-    monthly = credits.monthly,
-    used = monthly - free - setAside,
-  } = props;
+export function TopBar({ active, credits: override }: TopBarProps) {
+  const stored = useStudio().credits;
+  const credits = { ...stored, ...override };
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { signOut } = useSession();
   const current = active ?? navKeyFor(pathname);
 
   const onSignOut = () => {
-    // Welcome back (PIN unlock) returns with FA-23; until then signing out goes to Sign in.
-    signOut().finally(() => navigate(routes.signIn));
+    // Welcome back sends on to Sign in when this device isn't remembered.
+    signOut().finally(() => navigate(routes.welcome));
   };
 
   return (
@@ -79,7 +70,7 @@ export function TopBar(props: TopBarProps) {
       </nav>
 
       <div className={s.right}>
-        <CreditMeter free={free} setAside={setAside} used={used} monthly={monthly} />
+        <CreditMeter credits={credits} />
         <IconButton label="Sign out" onClick={onSignOut}>
           <SignOutIcon />
         </IconButton>
@@ -88,21 +79,28 @@ export function TopBar(props: TopBarProps) {
   );
 }
 
-/** Segments grow in proportion to their counts, so the 2px gaps never push the bar past 100%. */
-function CreditMeter({ free, setAside, used, monthly }: Required<Omit<TopBarProps, 'active'>>) {
-  const grow = (n: number) => ({ flex: `${Math.max(0, n)} 1 0` });
+/**
+ * Header credits (spec sheet): total free, a monthly-only bar (its length always means the monthly plan),
+ * a "+N" pill for top-up credits, and the monthly · top-up split underneath.
+ */
+function CreditMeter({ credits }: { credits: Credits }) {
+  const { total, monthlyFree, topUp } = creditSplit(credits);
+  const pct = (n: number) => ({ width: `${(Math.max(0, n) / credits.monthly) * 100}%` });
   return (
-    <Link to={routes.credits} className={s.meter} aria-label={`${free} of ${monthly} credits left`}>
-      <span className={s.meterText}>
-        <span>
-          <strong className="num">{free}</strong> credits left
-        </span>
-        <span className={s.meterTotal}>/ {monthly}</span>
+    <Link to={routes.credits} className={s.meter} aria-label={`${total} credits free: ${monthlyFree} monthly, ${topUp} top-up`}>
+      <span className={s.meterTotal}>
+        <strong className="num">{total}</strong> free
       </span>
-      <span className={s.meterBar} aria-hidden="true">
-        {free > 0 && <span className={s.meterFree} style={grow(free)} />}
-        {setAside > 0 && <span className={s.meterHeld} style={grow(setAside)} />}
-        {used > 0 && <span className={s.meterUsed} style={grow(used)} />}
+      <span className={s.meterRow} aria-hidden="true">
+        <span className={s.meterBar}>
+          {monthlyFree > 0 && <span className={s.meterFree} style={pct(monthlyFree)} />}
+          {credits.setAside > 0 && <span className={s.meterHeld} style={pct(credits.setAside)} />}
+          <span className={s.meterUsed} />
+        </span>
+        {topUp > 0 && <span className={s.meterTopUp}>+{topUp}</span>}
+      </span>
+      <span className={s.meterSplit}>
+        {monthlyFree} monthly · {topUp} top-up
       </span>
     </Link>
   );

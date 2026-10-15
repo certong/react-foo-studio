@@ -13,16 +13,14 @@
 .lg { padding: 4px 10px; font-size: var(--fs-badge); }
 
 .work { background: var(--st-work-bg); color: var(--st-work-fg); }
-.turn { background: var(--st-turn-bg); color: var(--st-turn-fg); box-shadow: inset 0 0 0 1px var(--st-turn-bd); }
+.turn { background: var(--st-turn-bg); color: var(--st-turn-fg); }
 .prob { background: var(--st-prob-bg); color: var(--st-prob-fg); }
 .live { background: var(--st-live-bg); color: var(--st-live-fg); }
-.end  { background: var(--st-end-bg);  color: var(--st-end-fg); box-shadow: inset 0 0 0 1px var(--st-end-bd); }
+.end  { background: var(--st-end-bg);  color: var(--st-end-fg); }
 
-.draft {
-  padding: 3px 8px;
-  border: 1.5px dashed #94a3b8;
-  background: transparent;
-  color: #475569;
-}
+/* "Draft (You)" is in the your-turn group (yellow). Kept as its own tone so Home still ranks drafts last. */
+.draft { background: var(--st-turn-bg); color: var(--st-turn-fg); }
+/* Plain "Draft" tag next to a chat thread's title. */
+.tag { background: var(--st-end-bg); color: var(--body); }
 
 .info { background: #eff6ff; color: #1d4ed8; }

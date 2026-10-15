@@ -1,10 +1,9 @@
 import { useId, useRef, useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AuthError, authErrorMessage } from '@/api/auth';
+import { AuthError, authErrorMessage, PIN_LENGTH } from '@/api/auth';
 import { AppShell } from '@/components/Layout';
 import { Button } from '@/components/Button';
-import { fieldStyles as f } from '@/components/Field';
-import { CHI_WHATSAPP } from '@/components/States';
+import { PinInput, fieldStyles as f, type PinInputHandle } from '@/components/Field';
 import { useSession } from '@/state/session';
 import { cx } from '@/lib/cx';
 import { routes } from '@/routes';
@@ -13,50 +12,58 @@ import s from './SignIn.module.css';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * 01 Sign in, against nest-foo-auth (FS-87): email + password for now. The design's email + PIN and
- * "remember this device" come back with FA-23, which adds them to nest-foo-auth.
- */
+/** 01 Sign in (FS-70): email + 6-digit PIN against nest-foo-auth, and "Remember this device" (FA-23). */
 export function SignIn() {
   const { status, signIn } = useSession();
   const navigate = useNavigate();
   const from = (useLocation().state as { from?: string } | null)?.from;
 
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [pin, setPin] = useState('');
+  const [remember, setRemember] = useState(true);
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [pinError, setPinError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const ids = { email: useId(), emailErr: useId(), password: useId(), passwordErr: useId(), formErr: useId() };
+  const pinRef = useRef<PinInputHandle>(null);
+  const ids = { email: useId(), emailErr: useId(), pinLabel: useId(), pinErr: useId(), formErr: useId() };
 
   if (status === 'signed-in') return <Navigate to={from ?? routes.home} replace />;
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const eErr = !email.trim() ? 'Enter your email.' : !EMAIL_RE.test(email.trim()) ? "That doesn't look like an email address." : null;
-    const pErr = password ? null : 'Enter your password.';
+    const pErr = pin.length < PIN_LENGTH ? `Enter all ${PIN_LENGTH} digits of your PIN.` : null;
     setEmailError(eErr);
-    setPasswordError(pErr);
+    setPinError(pErr);
     setFormError(null);
     if (eErr) return emailRef.current?.focus();
-    if (pErr) return passwordRef.current?.focus();
+    if (pErr) return pinRef.current?.focus();
 
     setSubmitting(true);
     try {
-      await signIn(email, password);
+      await signIn(email, pin, remember);
       navigate(from ?? routes.home, { replace: true });
     } catch (err) {
-      setFormError(authErrorMessage(err));
-      // Wrong email and wrong password look the same from the server, so clear the password and retry there.
-      if (err instanceof AuthError && err.code === 'invalid_credentials') setPassword('');
-      passwordRef.current?.focus();
+      const code = err instanceof AuthError ? err.code : 'unknown';
+      if (code === 'invalid_credentials' || code === 'locked') {
+        // The server can't say whether the email or the PIN was wrong: start the PIN again, boxes red.
+        setPin('');
+        setPinError(authErrorMessage(err));
+        requestAnimationFrame(() => pinRef.current?.focus());
+      } else {
+        setFormError(authErrorMessage(err));
+      }
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const onPinChange = (next: string) => {
+    setPin(next);
+    if (pinError) setPinError(null);
   };
 
   return (
@@ -82,7 +89,7 @@ export function SignIn() {
                 type="email"
                 autoComplete="username"
                 autoFocus
-                className={cx(f.input, s.email)}
+                className={f.input}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 aria-invalid={emailError ? true : undefined}
@@ -97,24 +104,22 @@ export function SignIn() {
             </div>
 
             <div className={f.field}>
-              <label htmlFor={ids.password} className={f.label}>
-                Password
-              </label>
-              <input
-                ref={passwordRef}
-                id={ids.password}
-                type="password"
-                autoComplete="current-password"
-                className={cx(f.input, s.email)}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                aria-invalid={passwordError || formError ? true : undefined}
-                aria-describedby={passwordError ? ids.passwordErr : undefined}
+              <span id={ids.pinLabel} className={f.label}>
+                {PIN_LENGTH}-digit PIN
+              </span>
+              <PinInput
+                ref={pinRef}
+                value={pin}
+                onChange={onPinChange}
+                length={PIN_LENGTH}
+                invalid={!!pinError}
                 disabled={submitting}
+                labelledBy={ids.pinLabel}
+                describedBy={pinError ? ids.pinErr : undefined}
               />
-              {passwordError && (
-                <span id={ids.passwordErr} role="alert" className={f.error}>
-                  {passwordError}
+              {pinError && (
+                <span id={ids.pinErr} role="alert" className={f.error}>
+                  {pinError}
                 </span>
               )}
             </div>
@@ -127,12 +132,13 @@ export function SignIn() {
           )}
 
           <div className={s.actions}>
-            <Button type="submit" size="hero" className={s.submit} loading={submitting} loadingLabel="Signing in…">
+            <Button type="submit" loading={submitting} loadingLabel="Signing in…">
               Sign in
             </Button>
-            <a className={s.help} href={CHI_WHATSAPP} target="_blank" rel="noopener noreferrer">
-              Forgot your password? Ask Chi
-            </a>
+            <label className={f.check}>
+              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} disabled={submitting} />
+              Remember this device for 30 days
+            </label>
           </div>
         </form>
       </div>

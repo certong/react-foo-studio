@@ -48,7 +48,7 @@ export function Kit() {
         ))}
         <span className={t.meta}>Low credits (13 Not enough credits): 10 free, nothing set aside</span>
         <div className={s.frame}>
-          <TopBar active="credits" free={10} setAside={0} />
+          <TopBar active="credits" credits={{ free: 10, setAside: 0, topUp: 0 }} />
         </div>
       </section>
 

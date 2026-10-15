@@ -1,17 +1,58 @@
-.intro { display: flex; flex-direction: column; gap: 12px; }
-.h1 { margin: 0; font-size: 56px; line-height: 0.95; font-weight: 600; letter-spacing: -0.045em; }
+.main { padding: 40px 64px 40px 48px; }
 
-.barWrap { display: flex; flex-direction: column; gap: 8px; }
-.bar { display: flex; gap: 3px; height: 48px; font-size: 14px; font-weight: 600; }
-.bar > span { display: flex; align-items: center; min-width: max-content; padding: 0 18px; white-space: nowrap; }
-.free { background: var(--credit-free); color: #fff; }
-.held { justify-content: center; padding: 0 8px !important; background: var(--credit-held); color: var(--ink); }
-.used { justify-content: flex-end; background: var(--credit-used); color: var(--body); }
-.skeleton { height: 48px; background: linear-gradient(90deg, var(--credit-used), #f1f5f9, var(--credit-used)); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+.header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.h1 { margin: 0; font-size: 52px; line-height: 0.9; font-weight: 600; letter-spacing: -0.045em; }
+.headTotal { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
+.headNumber { display: flex; align-items: baseline; gap: 8px; font-size: 16px; }
+.headNumber strong { font-size: 36px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; }
+.headSplit { font-size: 13px; color: var(--muted); }
+
+/* Monthly + Top-up cards */
+.cards { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.card { display: flex; flex-direction: column; gap: 12px; padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--card); }
+.topUpCard { border-color: var(--topup-bd); background: var(--topup-bg); }
+.topUpCard .cardHead h2, .topUpCard .cardHead span { color: var(--topup-ink); }
+.cardHead { display: flex; justify-content: space-between; align-items: baseline; }
+.cardHead span { font-size: 13px; font-weight: 600; }
+.cardNumber { display: flex; align-items: baseline; gap: 8px; font-size: 15px; color: var(--body); }
+.cardNumber strong { font-size: 36px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; color: var(--ink); }
+.monthBar { position: relative; display: block; width: 100%; height: 10px; padding: 0; border: none; border-radius: 0; background: var(--credit-used); overflow: hidden; }
+.monthFree, .monthHeld { position: absolute; top: 0; bottom: 0; }
+.monthFree { left: 0; background: var(--credit-free); transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1); }
+.monthHeld { background: var(--credit-held); transition: width 500ms cubic-bezier(0.22, 1, 0.36, 1) 750ms, left 900ms cubic-bezier(0.22, 1, 0.36, 1); }
+.skeleton { height: 10px; background: linear-gradient(90deg, var(--credit-used), #f1f5f9, var(--credit-used)); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
 @keyframes shimmer { to { background-position: -200% 0; } }
-.barFoot { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--body); }
+.cardNote { font-size: 13px; color: var(--muted); }
+.topUpNote { font-size: 14px; line-height: 1.5; color: var(--body); }
+.topUpFoot { display: flex; align-items: center; gap: 14px; margin-top: auto; font-size: 13px; color: var(--body); }
+.topUpFoot .topUpBtn { padding: 0 20px; font-size: 15px; }
 
-.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+/* 6-month trend + stats */
+.trendWrap { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 48px; align-items: start; padding-top: 20px; }
+.trend { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.trendHead { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.trendKey { display: flex; gap: 16px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.trendKey > span { display: flex; align-items: center; gap: 6px; }
+.keyMonthly, .keyTopUp { width: 12px; height: 12px; border-radius: 3px; background: var(--ink); }
+.keyTopUp { background: var(--topup-bar); }
+.keyPlan { width: 16px; height: 0; border-top: 1px dashed #94a3b8; }
+.trendChart { position: relative; height: 200px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 24px; align-items: end; }
+.planLine { position: absolute; left: 0; right: 0; bottom: 160px; border-top: 1px dashed #94a3b8; }
+.trendCol { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 2px; }
+.trendValue { position: relative; z-index: 1; align-self: center; padding: 0 4px 4px; background: var(--page); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.trendTopUp { border-radius: 6px 6px 0 0; background: var(--topup-bar); }
+.trendMonthly { border-radius: 6px; background: var(--ink); }
+.trendUnder { border-radius: 0 0 6px 6px; }
+.trendNow { background: #64748b; }
+.trendLabels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 24px; font-size: 13px; color: var(--muted); text-align: center; }
+.stats { display: flex; flex-direction: column; border-top: 2px solid var(--ink); }
+.stat { display: flex; flex-direction: column; gap: 4px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.stat strong { font-size: 30px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; white-space: nowrap; }
+.stat span { font-size: 14px; color: var(--body); }
+.statsNote { margin: 0; padding-top: 12px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+
+/* Ledger list (dial layout) */
 .section { display: flex; flex-direction: column; min-width: 0; }
 .sectionHead { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 12px; }
 .sectionHead span { font-size: 13px; color: var(--muted); }
@@ -30,14 +71,6 @@
 .more:hover { color: var(--link-hover); }
 .more span { color: var(--muted); font-weight: 400; }
 
-.chart { position: relative; height: 150px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: end; border-top: 1px dashed #94a3b8; border-bottom: 1px solid var(--ink); }
-.chartCol { height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
-.chartCol strong { font-size: 13px; font-weight: 600; }
-.chartBar { width: 100%; background: var(--ink); }
-.chartBarNow { background: #94a3b8; }
-.chartLabels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; font-size: 13px; color: var(--muted); text-align: center; }
-.typeRow { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
-
 /* Dial layout */
 .dialWrap { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 56px; align-items: center; }
 .dialCol { display: flex; flex-direction: column; align-items: center; gap: 18px; }
@@ -54,6 +87,7 @@
 .dialNote { margin: 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.5; color: var(--muted); }
 
 /* Aside */
+.order { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.5; }
 .prices { display: flex; flex-direction: column; font-size: 14px; }
 .price { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 .price strong { white-space: nowrap; }

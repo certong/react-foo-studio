@@ -7,7 +7,7 @@ import type { Attachment, ChatMessage, LedgerEntry, MockData, PageBlock, Request
 import { mapStatus } from './mock/status';
 import { addDays, addWorkingDays, formatShort, shortDay, today, toIsoDay } from '@/lib/date';
 
-const STORAGE_KEY = 'studio.data.v3'; // v3: contract-shaped requests (FS-104)
+const STORAGE_KEY = 'studio.data.v4'; // v4: 95 top-up credits in the seed (spec sheet State B)
 const LATENCY_MS = 500;
 const AGENT_MS = 900;
 
@@ -445,7 +445,7 @@ export async function confirmSignOff(id: number) {
 /** `?demo=low-credits`: 10 credits free, as on 13 Not enough credits. */
 export function setLowCredits() {
   commit((d) => {
-    d.credits = { ...d.credits, free: 10, setAside: 0, used: d.credits.monthly - 10 };
+    d.credits = { ...d.credits, free: 10, setAside: 0, used: d.credits.monthly - 10, topUp: 0 };
     d.ledger = d.ledger.filter((l) => l.kind !== 'held');
   });
 }

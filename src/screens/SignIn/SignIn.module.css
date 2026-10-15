@@ -5,16 +5,14 @@
 .lead { margin: 0; font-size: 18px; color: var(--body); }
 
 .fields {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 32px;
-  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 640px;
   padding-top: 24px;
   border-top: 2px solid var(--ink);
 }
-.email { height: 72px; padding: 0 18px; border-color: #d1d5db; }
 
-.actions { display: flex; align-items: center; gap: 32px; }
-.submit { padding: 0 40px; }
-.formError { margin: -8px 0 0; max-width: 860px; }
+.actions { display: flex; align-items: center; gap: 24px; }
+.formError { margin: -8px 0 0; max-width: 640px; }
 .help { font-size: 15px; font-weight: 500; white-space: nowrap; }

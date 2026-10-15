@@ -27,3 +27,19 @@
 .queueDetail { font-size: 14px; color: var(--muted); }
 .queueDetailProblem { color: var(--error); }
 
+
+.credits { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.creditsHead { display: flex; justify-content: space-between; align-items: baseline; }
+.creditsHead a { font-size: 13px; font-weight: 600; }
+.creditsTotal { display: flex; align-items: baseline; gap: 8px; font-size: 16px; }
+.creditsTotal strong { font-size: 44px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; }
+.creditsSplit { font-size: 13px; line-height: 1.5; color: var(--body); }
+.creditsRow { display: flex; align-items: center; gap: 8px; }
+.creditsBar { flex: 1; display: flex; gap: 2px; height: 8px; }
+.barFree { background: var(--credit-free); }
+.barHeld { background: var(--credit-held); }
+.barUsed { flex: 1; background: var(--credit-used); }
+.topUpPill { padding: 2px 8px; border-radius: var(--r-pill); background: var(--topup-bg); color: var(--topup-ink); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.topUpEmpty { background: transparent; border: 1px dashed #6366f1; }
+.topUpEmpty:hover { color: var(--topup-ink); background: var(--topup-bg); }
+.creditsCaption { font-size: 12px; color: var(--muted); }
