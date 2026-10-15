@@ -11,8 +11,15 @@ fail() {
   exit 1
 }
 
-[ "$(wc -l < "$merge_head")" -eq 1 ] || fail "Merge one branch at a time into '$target'."
-src=$(head -n 1 "$merge_head")
+# pre-merge-commit runs before git writes MERGE_HEAD; git merge names its source in GIT_REFLOG_ACTION.
+if [ -f "$merge_head" ]; then
+  [ "$(wc -l < "$merge_head")" -eq 1 ] || fail "Merge one branch at a time into '$target'."
+  src=$(head -n 1 "$merge_head")
+else
+  set -- ${GIT_REFLOG_ACTION#merge }
+  [ $# -eq 1 ] || fail "Merge one branch at a time into '$target'."
+  src=$(git rev-parse -q --verify "$1^{commit}" 2>/dev/null) || fail "Can't tell what is being merged into '$target'."
+fi
 
 # True when $src is the tip of the named branch, locally or on origin.
 is_tip() {
