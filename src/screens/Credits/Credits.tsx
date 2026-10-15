@@ -358,11 +358,10 @@ function TopUpAside({ credits, focus }: { credits: CreditsData; focus: boolean }
 /** `?ledger=long`: a busy month, to review the "Show all N" expand. */
 function demoEntries(): LedgerEntry[] {
   const rows: Array<[number, string, number]> = [
-    [2, 'Top-up · bank transfer', 100], [4, '#44 Change · Footer link', -5], [5, '#45 Change · Promo banner', -20],
-    [6, '#46 Extra preview · Catering', -10], [8, '#47 Change · Instagram link', -5], [8, '#48 Change · Menu photo caption', -20],
-    [9, '#49 Change · Holiday hours', -20], [11, '#50 Change · Price typo', -5], [11, '#51 Extra preview · Our Story', -10],
-    [12, '#52 Change · Delivery note', -20], [12, '#53 Change · WhatsApp text', -5], [13, '#54 Page draft dropped · Careers', -15],
-    [13, '#55 Change · Seasonal drinks', -20], [13, '#56 Change · Address line', -5], [14, '#57 Change · Map link', -5],
+    [2, 'Top-up · bank transfer', 100], [4, '#44 Change · Footer link', -20], [5, '#45 Change · Promo banner', -20],
+    [6, '#46 Extra preview · Catering', -10], [8, '#47 Change · Instagram link', -20], [9, '#49 Change · Holiday hours', -20],
+    [11, '#51 Extra preview · Our Story', -10], [12, '#52 Change · Delivery note', -20], [13, '#54 Page draft dropped · Careers', -15],
+    [13, '#55 Change · Seasonal drinks', -20],
   ];
   return rows.map(([day, text, amount], i) => ({
     id: `demo${i}`,

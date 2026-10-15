@@ -37,6 +37,9 @@ export function NoCredits() {
   const needed = thread.cost;
   const have = Math.min(credits.free, needed);
   const short = Math.max(0, needed - credits.free);
+  // Two buckets: monthly credits (reset on the 1st) are spent before top-up credits (never expire).
+  const topupFree = Math.min(credits.topUp, credits.free);
+  const monthlyFree = credits.free - topupFree;
   const reset = shortDay(credits.resetDate);
   const daysToReset = daysBetween(today(), parseDay(credits.resetDate));
   const summary = thread.summary ?? `${thread.changes.length} ${thread.changes.length === 1 ? 'change' : 'changes'}`;
@@ -110,6 +113,9 @@ export function NoCredits() {
             {have > 0 && <div className={s.have}>You have {have}</div>}
             <div className={s.short}>Short by {short}</div>
           </div>
+          <span className={s.split}>
+            {monthlyFree} monthly · {topupFree} top-up
+          </span>
         </div>
 
         <div className={s.draft}>
@@ -153,9 +159,6 @@ export function NoCredits() {
               </span>
             </Link>
           </div>
-          <Link to={routes.thread(id)} className={s.smaller}>
-            Or make it smaller: 1 price change costs 5 credits →
-          </Link>
         </div>
       </Columns>
     </AppShell>
