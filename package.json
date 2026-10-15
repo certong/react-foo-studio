@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start:local": "vite --mode local-api",
+    "start:development": "vite --mode development",
     "build": "tsc --noEmit && vite build",
+    "build:development": "tsc --noEmit && vite build --mode development",
+    "build:uat": "tsc --noEmit && vite build --mode uat",
+    "build:production": "tsc --noEmit && vite build --mode production",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
