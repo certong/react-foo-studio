@@ -7,8 +7,7 @@ import { session } from '@/data/seed';
 import { useStudio } from '@/state/studio';
 import type { StudioRequest } from '@/data/types';
 import { formatLong, greeting, today } from '@/lib/date';
-import { byFocus, deadlineFor, isYourTurn, REPLY_WINDOW_DAYS, requestHref, typeLabel } from '@/lib/requests';
-import { statusInfo } from '@/lib/status';
+import { byFocus, deadlineFor, isProblem, isYourTurn, REPLY_WINDOW_DAYS, requestHref, typeLabel } from '@/lib/requests';
 import { cx } from '@/lib/cx';
 import t from '@/styles/type.module.css';
 import s from './Home.module.css';
@@ -19,7 +18,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 function focusCopy(r: StudioRequest): { lead: string; cta: string; primary: boolean } {
   switch (r.status) {
     case 'uat':
-      if (r.type === 'page') return { lead: 'The page is ready to look at. It goes live only when you approve.', cta: 'Review preview', primary: true };
+      if (r.type === 'new_page') return { lead: 'The page is ready to look at. It goes live only when you approve.', cta: 'Review preview', primary: true };
       return {
         lead: `${r.changeCount ? `${r.changeCount} changes are` : 'Your change is'} ready to check. Nothing changes on ${session.site} until you approve.`,
         cta: 'Check before and after',
@@ -121,7 +120,7 @@ function Focus({ r }: { r: StudioRequest }) {
       </div>
       {deadline && (
         <p className={s.note}>
-          No reply by {deadline.label}: the {r.type === 'page' ? 'page' : 'change'} closes without going live, and Chi checks in.
+          No reply by {deadline.label}: the {r.type === 'new_page' ? 'page' : 'change'} closes without going live, and Chi checks in.
         </p>
       )}
     </>
@@ -138,14 +137,14 @@ function Empty({ hasRequests }: { hasRequests: boolean }) {
 
 function QueueItem({ r, prefix = '' }: { r: StudioRequest; prefix?: string }) {
   const deadline = deadlineFor(r);
-  const problem = statusInfo(r).tone === 'prob';
+  const problem = isProblem(r);
   const detail = isYourTurn(r)
     ? [r.changeCount ? `${r.changeCount} changes` : null, deadline ? deadline.text : 'no deadline'].filter(Boolean).join(' · ')
     : r.note;
   return (
     <Link to={requestHref(r)} className={s.queueItem}>
       <span className={s.queueMeta}>
-        {prefix}#{r.id} · {statusInfo(r).label}
+        {prefix}#{r.id} · {r.badge}
       </span>
       <strong className={s.queueTitle}>{r.title}</strong>
       <span className={cx(s.queueDetail, problem && s.queueDetailProblem)}>{detail}</span>

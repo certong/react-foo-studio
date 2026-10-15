@@ -37,6 +37,21 @@ Work flows `feature/*` → `development` → `uat` → `main`.
 
 On GitHub, branch protection requires pull requests, and the **Branch flow** check ([`.github/workflows/branch-flow.yml`](.github/workflows/branch-flow.yml)) rejects a PR from the wrong branch. Locally, the hooks in [`.githooks/`](.githooks/README.md) block direct commits once you run the setup commands there.
 
+## API contract
+
+The Studio API's contract is `openapi.json` in nest-foo-studio (FS-85). This repo generates its types from it:
+
+```sh
+npm run api:types   # → src/api/schema.d.ts (committed; never edit by hand)
+npm run mock:api    # contract-shaped replies on :4010 (add `Prefer: code=402` for an error)
+```
+
+Both read `../../Nest/nest-foo-studio/openapi.json` by default; set `OPENAPI_FILE` if your checkout lives elsewhere. A contract change happens in nest-foo-studio (`npm run openapi`), then you regenerate here.
+
+- [`src/api/client.ts`](src/api/client.ts) is the typed client (`openapi-fetch`). It sends a Bearer token and uses `VITE_API_BASE_URL`. The six money and publish POSTs need an `Idempotency-Key` header; their types make it required, and `idempotencyKey()` makes one.
+- [`src/data/types.ts`](src/data/types.ts) re-exports contract types (`RequestCard`, `Step`, `StepState`, `StatusKey`, …).
+- Screens render `badge` and `steps[]` from the data and never map statuses themselves. Only the badge colour and icon are set in the UI, keyed by `statusKey`.
+
 ## Mock API
 
 There's no backend yet. [`src/api/studio.ts`](src/api/studio.ts) is a mock API that keeps its data in memory, saves it to `localStorage` (`studio.data.v2`) and adds realistic delays. [`src/api/auth.ts`](src/api/auth.ts) does the same for sign-in. Screens only use these async calls, so a real backend can replace them without touching the screens.

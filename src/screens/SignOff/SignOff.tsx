@@ -29,7 +29,7 @@ export function SignOff() {
   const thread = threads[id];
 
   if (requests.some((r) => r.id === id)) return <Navigate to={routes.progress(id)} replace />;
-  if (!thread || thread.kind !== 'page' || !thread.plan?.length) {
+  if (!thread || thread.kind !== 'new_page' || !thread.plan?.length) {
     return (
       <AppShell>
         <Columns hero={<HeroNumber value="—" />} aside={null}>

@@ -3,21 +3,23 @@
  * realistic latency, so screens are written against an API shape that a real backend can replace.
  */
 import { PRICES, seedData, sketchPlan } from '@/data/seed';
-import type { Attachment, ChatMessage, LedgerEntry, PageBlock, RequestType, StudioData, StudioRequest, Thread } from '@/data/types';
+import type { Attachment, ChatMessage, LedgerEntry, MockData, PageBlock, RequestRow, RequestType, StudioData, Thread } from '@/data/types';
+import { mapStatus } from './mock/status';
 import { addDays, addWorkingDays, formatShort, shortDay, today, toIsoDay } from '@/lib/date';
 
-const STORAGE_KEY = 'studio.data.v2'; // v2: FS-85 statuses
+const STORAGE_KEY = 'studio.data.v3'; // v3: contract-shaped requests (FS-104)
 const LATENCY_MS = 500;
 const AGENT_MS = 900;
 
-let db: StudioData = load();
+let db: MockData = load();
+let view: StudioData = toView(db);
 const listeners = new Set<() => void>();
 
-function load(): StudioData {
+function load(): MockData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const data = JSON.parse(raw) as StudioData;
+      const data = JSON.parse(raw) as MockData;
       // A reply that was in flight when the tab closed never arrives: clear the flag.
       Object.values(data.threads).forEach((th) => (th.typing = false));
       return data;
@@ -38,10 +40,11 @@ function persist() {
   }
 }
 
-function commit(mutate: (d: StudioData) => void) {
+function commit(mutate: (d: MockData) => void) {
   const next = structuredClone(db);
   mutate(next);
   db = next;
+  view = toView(db);
   persist();
   listeners.forEach((l) => l());
 }
@@ -49,9 +52,22 @@ function commit(mutate: (d: StudioData) => void) {
 const wait = (ms = LATENCY_MS) => new Promise((r) => setTimeout(r, ms));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const todayIso = () => toIsoDay(today());
+const nowIso = () => new Date().toISOString();
 
+/** Every request as the API sends it: the stored row plus statusKey, badge, owner and steps[]. */
+function toView(data: MockData): StudioData {
+  return {
+    ...data,
+    requests: data.requests.map(({ stoppedAt, ...row }) => ({
+      ...row,
+      ...mapStatus({ status: row.status, closeReason: row.closeReason, type: row.type, stoppedAt }),
+    })),
+  };
+}
+
+/** Stable between changes, so useSyncExternalStore only re-renders when data actually changes. */
 export function getSnapshot(): StudioData {
-  return db;
+  return view;
 }
 
 export function subscribe(listener: () => void) {
@@ -88,11 +104,11 @@ export async function getCredits() {
 
 // ---------- credits ----------
 
-function ledger(d: StudioData, entry: Omit<LedgerEntry, 'id' | 'date'>) {
+function ledger(d: MockData, entry: Omit<LedgerEntry, 'id' | 'date'>) {
   d.ledger.push({ id: uid(), date: todayIso(), ...entry });
 }
 
-function spendFree(d: StudioData, amount: number, text: string) {
+function spendFree(d: MockData, amount: number, text: string) {
   if (d.credits.free < amount) throw new NotEnoughCreditsError(amount, d.credits.free);
   d.credits.free -= amount;
   d.credits.used += amount;
@@ -115,13 +131,13 @@ export async function cancelTopUp() {
 
 // ---------- chat ----------
 
-function thread(d: StudioData, id: number): Thread {
+function thread(d: MockData, id: number): Thread {
   const t = d.threads[id];
   if (!t) throw new Error(`No thread #${id}`);
   return t;
 }
 
-function nextId(d: StudioData) {
+function nextId(d: MockData) {
   const ids = [...Object.keys(d.threads).map(Number), ...d.requests.map((r) => r.id), ...d.history.map((h) => h.id)];
   return Math.max(...ids) + 1;
 }
@@ -140,15 +156,15 @@ export function startThread(kind: RequestType): number {
     d.threads[id] = {
       id,
       kind,
-      title: kind === 'page' ? 'New page' : 'New change',
+      title: kind === 'new_page' ? 'New page' : 'New change',
       savedOn: todayIso(),
       composer: '',
       cost: kind === 'change' ? PRICES.change : 0,
       setAside: false,
       changes: [],
-      plan: kind === 'page' ? [] : undefined,
-      previewsUsed: kind === 'page' ? 0 : undefined,
-      messages: [{ id: uid(), from: 'agent', text: kind === 'page' ? 'What should the new page be about?' : 'Hi Mei! What would you like to change?' }],
+      plan: kind === 'new_page' ? [] : undefined,
+      previewsUsed: kind === 'new_page' ? 0 : undefined,
+      messages: [{ id: uid(), from: 'agent', text: kind === 'new_page' ? 'What should the new page be about?' : 'Hi Mei! What would you like to change?' }],
     };
   });
   return id;
@@ -165,7 +181,10 @@ export async function submitChanges(id: number) {
       type: 'change',
       title: th.title,
       status: 'checking',
-      currentStep: 1,
+      closeReason: null,
+      replyBy: null,
+      creditsHeld: th.cost,
+      updatedAt: nowIso(),
       note: `${th.changes.length} ${th.changes.length === 1 ? 'change' : 'changes'} · ${th.cost} credits set aside · before and after by tomorrow`,
       changeCount: th.changes.length,
       credits: th.cost,
@@ -226,7 +245,7 @@ export async function sendMessage(id: number, text: string, attachments: Attachm
   });
 }
 
-function agentChangeReply(d: StudioData, th: Thread, text: string) {
+function agentChangeReply(d: MockData, th: Thread, text: string) {
   const short = text.length > 64 ? `${text.slice(0, 61)}…` : text;
   if (th.changes.length >= PRICES.maxChanges) {
     th.messages.push({ id: uid(), from: 'agent', text: `That's ${PRICES.maxChanges} changes, the most one request can hold. Check these first, then start a new chat for the rest.` });
@@ -310,7 +329,10 @@ export async function scheduleDraft(id: number) {
       type: th.kind,
       title: th.title,
       status: 'draft',
-      currentStep: 0,
+      closeReason: null,
+      replyBy: null,
+      creditsHeld: 0,
+      updatedAt: nowIso(),
       note: `Starts ${shortDay(d.credits.resetDate)} when your monthly credits arrive · nothing charged`,
       credits: th.cost,
       changeCount: th.changes.length,
@@ -321,7 +343,7 @@ export async function scheduleDraft(id: number) {
 
 // ---------- requests ----------
 
-function request(d: StudioData, id: number): StudioRequest {
+function request(d: MockData, id: number): RequestRow {
   const r = d.requests.find((x) => x.id === id);
   if (!r) throw new Error(`No request #${id}`);
   return r;
@@ -338,7 +360,9 @@ export async function approveChange(id: number, englishOnly: boolean) {
     d.ledger = d.ledger.filter((l) => !(l.kind === 'held' && l.text.startsWith(`#${id} `)));
     ledger(d, { text: `#${id} Change · ${r.shortTitle ?? r.title}`, amount: -cost, kind: 'spend' });
     r.status = 'live';
-    r.currentStep = 3;
+    r.creditsHeld = 0;
+    r.replyBy = null;
+    r.updatedAt = nowIso();
     r.note = `Live since ${formatShort(today())} · ${cost} credits${englishOnly ? ' · English only' : ''}`;
     if (englishOnly && r.changes) {
       r.changes = r.changes.map((c) => (c.kind === 'text' ? { ...c, rows: c.rows.filter((row) => row.lang !== 'Malay') } : c));
@@ -353,10 +377,10 @@ export async function approvePreview(id: number) {
   commit((d) => {
     const r = request(d, id);
     r.status = 'live';
-    r.currentStep = 4;
-    r.deadline = undefined;
+    r.replyBy = null;
+    r.updatedAt = nowIso();
     r.note = `Live since ${formatShort(today())} · RM ${PRICES.newPageRm}`;
-    d.history.unshift({ id, type: 'page', title: `New page: ${r.title}`, date: todayIso(), scope: `${r.blocks?.length ?? 0} sections`, credits: null, changes: [] });
+    d.history.unshift({ id, type: 'new_page', title: `New page: ${r.title}`, date: todayIso(), scope: `${r.blocks?.length ?? 0} sections`, credits: null, changes: [] });
   });
 }
 
@@ -369,8 +393,8 @@ export async function requestPreviewChanges(id: number, feedback: string) {
     if (used >= (r.freeRounds ?? 0)) spendFree(d, PRICES.extraRound, `#${id} Extra change round · ${r.title}`);
     r.roundsUsed = used + 1;
     r.status = 'building';
-    r.currentStep = 1;
-    r.deadline = undefined;
+    r.replyBy = null;
+    r.updatedAt = nowIso();
     const ready = formatShort(addDays(today(), 2));
     r.note = `Changes requested · new preview by ${ready}`;
     r.timeline = [
@@ -394,10 +418,13 @@ export async function confirmSignOff(id: number) {
     d.requests = d.requests.filter((r) => r.id !== id);
     d.requests.push({
       id,
-      type: 'page',
+      type: 'new_page',
       title: th.title,
       status: 'building',
-      currentStep: 1,
+      closeReason: null,
+      replyBy: null,
+      creditsHeld: 0,
+      updatedAt: nowIso(),
       note: `Ready by ${formatShort(ready)}`,
       credits: null,
       signedOff: toIsoDay(start),
@@ -425,6 +452,7 @@ export function setLowCredits() {
 
 export function resetDemo() {
   db = seedData();
+  view = toView(db);
   persist();
   listeners.forEach((l) => l());
 }

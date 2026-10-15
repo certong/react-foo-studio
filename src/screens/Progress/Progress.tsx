@@ -5,14 +5,15 @@ import { StatusBadge } from '@/components/Badge';
 import { StepDot } from '@/components/StepTracker';
 import { EmptyState } from '@/components/States';
 import { PRICES } from '@/data/seed';
-import type { StudioRequest } from '@/data/types';
+import type { StepState, StudioRequest } from '@/data/types';
 import { useStudio } from '@/state/studio';
-import { stepsFor } from '@/lib/steps';
 import { actionLabel, isYourTurn, requestHref, typeLabel } from '@/lib/requests';
 import { shortDay } from '@/lib/date';
 import { cx } from '@/lib/cx';
 import t from '@/styles/type.module.css';
 import s from './Progress.module.css';
+
+const STATE_CLASS: Record<StepState, string> = { done: s.done, now: s.now, your_turn: s.turn, problem: s.fail, todo: s.todo };
 
 /** 12: dated timeline. The current step pulses; a failed step is red with "!" and Chi's note. */
 export function Progress() {
@@ -30,9 +31,9 @@ export function Progress() {
     );
   }
 
-  const steps = stepsFor(r);
+  const steps = r.steps;
   const allDone = steps.every((x) => x.state === 'done');
-  const current = allDone ? steps.length : r.currentStep + 1;
+  const current = allDone ? steps.length : steps.findIndex((x) => x.state !== 'done') + 1;
 
   return (
     <AppShell>
@@ -53,7 +54,7 @@ export function Progress() {
             const date = when ? (when.estimate ? `by ${when.when}` : when.when) : '';
             const isNow = step.state === 'now';
             return (
-              <li key={step.label} className={cx(s.item, s[step.state])} aria-current={isNow || step.state === 'turn' || step.state === 'fail' ? 'step' : undefined}>
+              <li key={step.label} className={cx(s.item, STATE_CLASS[step.state])} aria-current={isNow || step.state === 'your_turn' || step.state === 'problem' ? 'step' : undefined}>
                 <span className={s.date}>{date}</span>
                 <StepDot state={step.state} className={cx(s.dot, isNow && s.ring)} />
                 {isNow && (
@@ -66,11 +67,11 @@ export function Progress() {
                   {step.label}
                   <span className="visually-hidden">
                     {' '}
-                    ({{ done: 'done', now: 'in progress', turn: 'your turn', fail: 'problem', todo: 'not started' }[step.state]})
+                    ({{ done: 'done', now: 'in progress', your_turn: 'your turn', problem: 'problem', todo: 'not started' }[step.state]})
                   </span>
                 </h2>
                 <span className={s.detail}>{when?.detail}</span>
-                {step.state === 'fail' && r.chiNote && <p className={s.chiNote}>{r.chiNote}</p>}
+                {step.state === 'problem' && r.chiNote && <p className={s.chiNote}>{r.chiNote}</p>}
               </li>
             );
           })}

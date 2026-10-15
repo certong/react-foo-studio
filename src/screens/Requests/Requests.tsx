@@ -7,9 +7,7 @@ import { StepTracker } from '@/components/StepTracker';
 import { EmptyState } from '@/components/States';
 import type { StudioRequest } from '@/data/types';
 import { useStudio } from '@/state/studio';
-import { actionLabel, byFocus, isOpen, isYourTurn, requestHref, typeLabel } from '@/lib/requests';
-import { statusInfo } from '@/lib/status';
-import { stepsFor } from '@/lib/steps';
+import { actionLabel, byFocus, isOpen, isProblem, isYourTurn, requestHref, typeLabel } from '@/lib/requests';
 import { cx } from '@/lib/cx';
 import { routes } from '@/routes';
 import t from '@/styles/type.module.css';
@@ -94,7 +92,7 @@ export function Requests() {
 }
 
 function RequestRow({ r }: { r: StudioRequest }) {
-  const problem = statusInfo(r).tone === 'prob';
+  const problem = isProblem(r);
   return (
     <li className={s.row}>
       <div className={s.body}>
@@ -106,7 +104,7 @@ function RequestRow({ r }: { r: StudioRequest }) {
         </div>
         <h2 className={s.title}>{r.title}</h2>
         <span className={cx(s.note, problem && s.noteProblem)}>{r.note}</span>
-        <StepTracker steps={stepsFor(r)} />
+        <StepTracker steps={r.steps} />
       </div>
       <ButtonLink to={requestHref(r)} variant={isYourTurn(r) ? 'primary' : 'secondary'} aria-label={`${actionLabel(r)}: ${r.title}`}>
         {actionLabel(r)}
