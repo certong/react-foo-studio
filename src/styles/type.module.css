@@ -1,0 +1,13 @@
+.hero { font-size: var(--fs-hero); line-height: var(--lh-hero); font-weight: 600; letter-spacing: var(--ls-hero); }
+.h1 { margin: 0; font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: 600; letter-spacing: var(--ls-h1); text-wrap: balance; }
+.h1Chat { margin: 0; font-size: var(--fs-h1-chat); line-height: 1; font-weight: 600; letter-spacing: var(--ls-h1-chat); text-wrap: balance; }
+.h2 { margin: 0; font-size: var(--fs-h2); font-weight: 600; letter-spacing: var(--ls-h2); }
+.title { margin: 0; font-size: var(--fs-title); font-weight: 600; letter-spacing: var(--ls-title); }
+.lead { margin: 0; font-size: var(--fs-lead); line-height: var(--lh-lead); color: var(--body); text-wrap: pretty; }
+.body { margin: 0; font-size: var(--fs-body); line-height: var(--lh-body); color: var(--body); }
+.meta { font-size: var(--fs-meta); color: var(--muted); }
+.label { margin: 0; font-size: var(--fs-label); font-weight: 400; color: var(--muted); text-transform: uppercase; letter-spacing: var(--ls-label); }
+.error { font-size: 14px; color: var(--error); }
+/* Swiss-style 2px section rule. */
+.ruleTop { border-top: 2px solid var(--ink); }
+.row { padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }

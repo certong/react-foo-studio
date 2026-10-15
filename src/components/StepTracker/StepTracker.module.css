@@ -1,0 +1,21 @@
+.tracker {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: 360px;
+  margin: 0;
+  padding: 4px 0 0;
+  list-style: none;
+}
+.step { display: flex; flex-direction: column; gap: 4px; }
+.node { position: relative; height: 14px; display: flex; align-items: center; }
+.line { position: absolute; left: 7px; right: -7px; top: 6px; height: 2px; background: var(--tracker-line); }
+.step:last-child .line { display: none; }
+.label { font-size: var(--fs-tracker); letter-spacing: 0.01em; white-space: nowrap; color: var(--muted); }
+
+.done .line { background: var(--dot-done); }
+.done .label { color: var(--ink); }
+.now .label { color: var(--st-work-fg); font-weight: 600; }
+.turn .label { color: var(--st-turn-fg); font-weight: 600; }
+.fail .label { color: var(--st-prob-fg); font-weight: 600; }

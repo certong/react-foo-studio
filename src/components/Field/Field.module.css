@@ -1,0 +1,38 @@
+.field { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.label { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+.input {
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: #fff;
+  color: var(--ink);
+  font-size: 22px;
+}
+.input::placeholder { color: #94a3b8; }
+.input:focus { outline: 2px solid var(--link); outline-offset: 2px; }
+.input[aria-invalid='true'] { border: 2px solid var(--error); }
+
+.error { font-size: 14px; color: var(--error); }
+
+.check { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px; white-space: nowrap; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); cursor: pointer; }
+
+.pin { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.pinBox {
+  width: 100%;
+  height: 72px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: var(--r-btn);
+  background: #fff;
+  color: var(--ink);
+  font-size: 32px;
+  font-weight: 600;
+  text-align: center;
+  caret-color: var(--link);
+}
+.pinBox:focus { outline: 2px solid var(--link); outline-offset: 2px; }
+.pin[data-invalid='true'] .pinBox { border: 2px solid var(--error); }

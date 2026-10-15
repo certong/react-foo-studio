@@ -1,0 +1,29 @@
+.main { padding: 72px 64px 40px 32px; gap: 24px; }
+
+.date { font-size: 14px; color: var(--muted); }
+.meta { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--muted); }
+.title { margin: 0; font-size: 60px; line-height: 0.95; font-weight: 600; letter-spacing: -0.045em; text-wrap: balance; }
+.lead { margin: 0; max-width: 640px; font-size: 22px; line-height: 1.45; color: var(--body); text-wrap: pretty; }
+
+.action { display: flex; align-items: center; gap: 28px; margin-top: 16px; }
+.deadline { display: flex; flex-direction: column; gap: 8px; }
+.deadlineText { font-size: 15px; font-weight: 600; color: var(--st-turn-fg); white-space: nowrap; }
+.days { display: grid; grid-auto-flow: column; grid-auto-columns: 24px; gap: 4px; }
+.day { height: 8px; background: var(--dot-turn); }
+.dayUsed { background: var(--ink); }
+
+.note { margin: 0; font-size: 14px; color: var(--muted); }
+.skip { align-self: flex-start; font-size: 16px; font-weight: 500; }
+
+.aside { gap: 0; }
+.asideLabel { padding-bottom: 12px; }
+.asideLabel + .asideLabel,
+.queueItem + .asideLabel { padding-top: 28px; }
+.queueItem { display: flex; flex-direction: column; gap: 4px; padding: 16px 0; border-top: 1px solid var(--line); color: var(--ink); }
+.queueItem:hover { color: var(--ink); }
+.queueItem:hover strong { color: var(--link); }
+.queueMeta { font-size: 13px; color: var(--muted); }
+.queueTitle { font-size: 18px; font-weight: 600; transition: color 160ms ease; }
+.queueDetail { font-size: 14px; color: var(--muted); }
+.queueDetailProblem { color: var(--error); }
+

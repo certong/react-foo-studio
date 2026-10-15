@@ -1,0 +1,74 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: var(--r-btn);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease, transform 160ms ease;
+}
+.btn:active:not(:disabled) { transform: scale(0.98); }
+
+.primary { background: var(--primary); color: #fff; border: 1px solid var(--primary); }
+.primary:hover { background: var(--primary-hover); color: #fff; }
+.secondary { background: #fff; color: var(--ink); border: 1px solid var(--ink); }
+.secondary:hover { background: var(--secondary-hover); color: var(--ink); }
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  background: var(--disabled-bg);
+  color: var(--disabled-fg);
+  border: 1px solid var(--disabled-bd);
+  cursor: not-allowed;
+}
+
+.hero { height: 56px; padding: 0 28px; font-size: 17px; }
+.lg { height: 52px; padding: 0 26px; font-size: 16px; }
+.md { height: 48px; }
+.sm { height: 44px; }
+.xs { height: 40px; padding: 0 16px; font-size: 14px; }
+
+.block { display: flex; width: 100%; }
+
+/* Arrow hover: default hover style. Skipped on toggle buttons (aria-pressed) and while disabled. */
+.btn:not([aria-pressed])::after {
+  content: '→';
+  content: '→' / ''; /* decorative: keep it out of the accessible name */
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-4px);
+  transition: max-width 200ms ease, opacity 160ms ease, transform 200ms ease, margin 200ms ease;
+}
+.btn:not([aria-pressed]):not(:disabled):not([aria-disabled='true']):hover::after,
+:global(.card-link):hover .btn::after {
+  max-width: 1.2em;
+  opacity: 1;
+  transform: none;
+  margin-left: 6px;
+}
+
+/* Toggle buttons (e.g. "Update Malay too" / "English only"): selected = ink fill. */
+.btn[aria-pressed='true'] { background: var(--ink); color: #fff; }
+
+.icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--r-btn);
+  background: transparent;
+  color: var(--ink);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+.icon:hover { background: var(--ink); color: #fff; }

@@ -1,0 +1,38 @@
+.main { padding: 56px 64px 40px 48px; gap: 32px; }
+.block { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+.h1 { margin: 0; font-size: 44px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; text-wrap: balance; }
+.lead { margin: 0; font-size: 18px; line-height: 1.5; color: var(--body); }
+
+.gapHead { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; color: var(--muted); }
+.gapHead strong { color: var(--ink); }
+.gapBar { display: grid; gap: 4px; height: 40px; }
+.have, .short { display: flex; align-items: center; padding: 0 14px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.have { border-radius: 6px 0 0 6px; background: var(--credit-free); color: #fff; }
+.short { border: 2px dashed var(--error); border-radius: 0 6px 6px 0; background: #fef2f2; color: var(--error); }
+.short:only-child { border-radius: 6px; }
+
+.draft { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; max-width: 720px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.draftWhat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.draftWhat strong { font-size: 16px; font-weight: 600; }
+.draftWhat span { font-size: 14px; color: var(--muted); }
+.openDraft { font-size: 14px; font-weight: 600; white-space: nowrap; }
+
+.cards { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.card { display: flex; flex-direction: column; gap: 12px; padding: 22px; border: 1px solid var(--line); border-radius: var(--r-card); background: #fff; color: var(--ink); text-align: left; transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; }
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); color: var(--ink); border-color: #94a3b8; }
+.recommended { border: 2px solid var(--ink); }
+.recommended:hover { border-color: var(--ink); }
+.cardHead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.cardHead strong { font-size: 18px; font-weight: 600; }
+.tagGood { font-size: 13px; font-weight: 600; color: #047857; }
+.tagMuted { font-size: 13px; color: var(--muted); }
+.cardBody { font-size: 14px; line-height: 1.5; color: var(--body); }
+.cardBtn { margin-top: auto; pointer-events: none; }
+.smaller { align-self: flex-start; font-size: 14px; font-weight: 500; }
+
+.steps { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.step { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.stepNo { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; }
+.step span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.step small { font-size: 14px; color: var(--muted); }
+.foot { margin: 0; padding-top: 14px; border-top: 2px solid var(--ink); font-size: 13px; line-height: 1.5; color: var(--muted); }

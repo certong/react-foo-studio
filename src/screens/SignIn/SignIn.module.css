@@ -1,0 +1,18 @@
+.cols { display: grid; grid-template-columns: var(--col-hero) minmax(0, 1fr) var(--col-aside); min-height: 0; }
+.form { grid-column: 2; padding: 72px 64px 40px 32px; display: flex; flex-direction: column; gap: 28px; }
+.intro { display: flex; flex-direction: column; gap: 14px; }
+.h1 { margin: 0; font-size: 60px; line-height: 0.95; font-weight: 600; letter-spacing: -0.045em; text-wrap: balance; }
+.lead { margin: 0; font-size: 18px; color: var(--body); }
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  max-width: 860px;
+  padding-top: 24px;
+  border-top: 2px solid var(--ink);
+}
+.email { height: 72px; padding: 0 18px; border-color: #d1d5db; }
+
+.actions { display: flex; align-items: center; gap: 32px; }
+.submit { padding: 0 40px; }

@@ -1,0 +1,23 @@
+.back { align-self: flex-start; font-size: 14px; color: var(--muted); }
+.back:hover { color: var(--ink); }
+.header { display: flex; flex-direction: column; align-items: flex-end; gap: 20px; }
+.h1 { align-self: flex-start; margin: 0; font-size: 56px; line-height: 0.95; font-weight: 600; letter-spacing: -0.045em; white-space: nowrap; }
+.top { display: flex; flex-direction: column; gap: 10px; }
+
+.month { display: flex; flex-direction: column; border-top: 2px solid var(--ink); }
+.month:first-of-type { border-top: none; }
+.monthTitle { padding: 12px 0; }
+.list { margin: 0; padding: 0; list-style: none; }
+.row { display: grid; grid-template-columns: 72px minmax(0, 1fr) 110px auto; gap: 20px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+.date { font-size: 14px; color: var(--muted); white-space: nowrap; }
+.what { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.meta { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.title { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.cost { font-size: 14px; font-weight: 600; white-space: nowrap; text-align: right; }
+
+.totals { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-top: 2px solid var(--ink); padding-top: 14px; }
+.total { display: flex; flex-direction: column; gap: 4px; }
+.total strong { font-size: 32px; font-weight: 600; letter-spacing: -0.04em; white-space: nowrap; }
+.total span { font-size: 13px; color: var(--muted); }
+.note { margin: 0; font-size: 15px; line-height: 1.5; color: var(--body); }
+.creditLink { font-size: 15px; font-weight: 600; }

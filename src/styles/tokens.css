@@ -1,0 +1,62 @@
+/* Foo Studio design tokens. Values from the handoff tokens.css / README. */
+:root {
+  /* type */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --fs-hero: 120px;   --ls-hero: -0.06em;  --lh-hero: 0.8;
+  --fs-h1: 56px;      --ls-h1: -0.045em;   --lh-h1: 0.95;
+  --fs-h1-chat: 44px; --ls-h1-chat: -0.04em;
+  --fs-h2: 28px;      --ls-h2: -0.03em;
+  --fs-title: 20px;   --ls-title: -0.02em;
+  --fs-lead: 18px;    --lh-lead: 1.45;
+  --fs-body: 15px;    --lh-body: 1.5;
+  --fs-meta: 14px;
+  --fs-label: 13px;   --ls-label: 0.12em;
+  --fs-badge: 13px;
+  --fs-tracker: 11px;
+
+  /* colour */
+  --ink: #0f172a;   --body: #334155;   --muted: #5b6b80;
+  --line: #e5e7eb;  --line-strong: #cbd5e1;
+  --page: #f8fafc;  --card: #ffffff;   --canvas: #eef1f5;
+  --link: #2563eb;  --link-hover: #1d4ed8;
+  --primary: #0f172a; --primary-hover: #1e293b; --secondary-hover: #f1f5f9;
+  --disabled-bg: #e5e7eb; --disabled-fg: #5b6b80; --disabled-bd: #d1d5db;
+  --error: #b91c1c;
+
+  /* credits */
+  --credit-free: #16a34a;  --credit-free-ink: #15803d;
+  --credit-held: #eab308;  --credit-held-ink: #854d0e;
+  --credit-used: #e2e8f0;
+
+  /* status */
+  --st-work-bg: #dbeafe; --st-work-fg: #1d4ed8;
+  --st-turn-bg: #fef3c7; --st-turn-fg: #92400e; --st-turn-bd: #f59e0b;
+  --st-prob-bg: #fee2e2; --st-prob-fg: #b91c1c;
+  --st-live-bg: #d1fae5; --st-live-fg: #047857;
+  --st-end-bg:  #f1f5f9; --st-end-fg:  #475569;
+  --st-end-bd: #cbd5e1;
+
+  /* step dots (Status Key v2): every marker has a shape as well as a colour */
+  --dot-done: #0f172a;  --dot-done-mark: #fff;
+  --dot-now: #2563eb;
+  --dot-turn: #fbbf24;  --dot-turn-bd: #a16207; --dot-turn-mark: #713f12;
+  --dot-fail: #b91c1c;  --dot-fail-mark: #fff;
+  --dot-todo: #fff;     --dot-todo-bd: #64748b;
+  --tracker-line: #d1d5db;
+
+  /* shape */
+  --r-tag: 4px; --r-badge: 6px; --r-btn: 8px; --r-seg: 9px; --r-card: 12px; --r-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-lift: 0 10px 24px rgba(15, 23, 42, 0.08);
+
+  /* motion */
+  --ease-thumb: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* layout */
+  --topbar-h: 64px;
+  --col-hero: 200px;
+  --col-aside: 360px;
+}
+
+/* Keyframes live in the CSS module that uses them: CSS Modules scopes animation names locally. */

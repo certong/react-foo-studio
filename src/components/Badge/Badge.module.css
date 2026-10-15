@@ -1,0 +1,28 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 3px 8px;
+  border-radius: var(--r-badge);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.lg { padding: 4px 10px; font-size: var(--fs-badge); }
+
+.work { background: var(--st-work-bg); color: var(--st-work-fg); }
+.turn { background: var(--st-turn-bg); color: var(--st-turn-fg); box-shadow: inset 0 0 0 1px var(--st-turn-bd); }
+.prob { background: var(--st-prob-bg); color: var(--st-prob-fg); }
+.live { background: var(--st-live-bg); color: var(--st-live-fg); }
+.end  { background: var(--st-end-bg);  color: var(--st-end-fg); box-shadow: inset 0 0 0 1px var(--st-end-bd); }
+
+.draft {
+  padding: 3px 8px;
+  border: 1.5px dashed #94a3b8;
+  background: transparent;
+  color: #475569;
+}
+
+.info { background: #eff6ff; color: #1d4ed8; }

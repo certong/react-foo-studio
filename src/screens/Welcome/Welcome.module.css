@@ -1,0 +1,25 @@
+.page {
+  height: 100vh;
+  min-width: 1200px;
+  display: grid;
+  grid-template-columns: var(--col-hero) minmax(0, 1fr) var(--col-aside);
+  background: var(--page);
+}
+.form { grid-column: 2; max-width: 600px; padding: 200px 64px 0 32px; display: flex; flex-direction: column; gap: 24px; }
+.h1 { margin: 0; font-size: 64px; line-height: 0.95; font-weight: 600; letter-spacing: -0.05em; }
+
+.card { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.avatar { width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: var(--r-btn); background: var(--ink); color: #fff; font-weight: 700; }
+.who { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.who strong { font-size: 17px; }
+.who span { font-size: 14px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+
+.linkButton { padding: 0; border: none; background: none; color: var(--link); font-size: 15px; font-weight: 500; }
+.linkButton:hover { color: var(--link-hover); }
+
+.pin { font-size: 20px; letter-spacing: 0.3em; }
+
+.actions { display: flex; align-items: center; gap: 24px; }
+.submit { padding: 0 32px; }
+.forgot { font-size: 15px; font-weight: 500; }
+.note { margin: 0; font-size: 14px; color: var(--muted); }

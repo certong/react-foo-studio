@@ -1,0 +1,24 @@
+.dot {
+  position: relative;
+  flex: none;
+  width: var(--dot-size, 14px);
+  height: var(--dot-size, 14px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: calc(var(--dot-size, 14px) * 0.64);
+  font-weight: 700;
+  line-height: 1;
+}
+.done { background: var(--dot-done); color: var(--dot-done-mark); }
+.now { background: var(--dot-now); animation: pulse 1600ms ease-out infinite; }
+.turn { background: var(--dot-turn); border: 2px solid var(--dot-turn-bd); color: var(--dot-turn-mark); }
+.fail { background: var(--dot-fail); color: var(--dot-fail-mark); }
+.todo { background: var(--dot-todo); border: 2px solid var(--dot-todo-bd); }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.55); opacity: 1; }
+  50% { opacity: 0.55; }
+  100% { box-shadow: 0 0 0 9px rgba(37, 99, 235, 0); opacity: 1; }
+}

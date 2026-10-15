@@ -1,0 +1,37 @@
+/* Standard frame: 64px bar | 1fr | optional bottom bar. Designed at 1440×900; mobile not designed yet. */
+.shell {
+  height: 100vh;
+  min-width: 1200px;
+  display: grid;
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--page);
+}
+.withBar { grid-template-rows: var(--topbar-h) minmax(0, 1fr) var(--bottom-h, 104px); }
+.emptyTop { border-bottom: 1px solid var(--line); }
+
+.cols { display: grid; grid-template-columns: var(--col-hero) minmax(0, 1fr) var(--aside-w, var(--col-aside)); min-height: 0; }
+.cols2 { grid-template-columns: minmax(0, 1fr) var(--aside-w, var(--col-aside)); }
+
+.hero { padding: 72px 0 0 48px; display: flex; flex-direction: column; gap: 10px; }
+.main { padding: 72px 64px 48px 32px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+.cols2 .main { padding: 56px 64px 48px 48px; }
+.aside { border-left: 1px solid var(--line); padding: 72px 40px 40px; display: flex; flex-direction: column; gap: 16px; overflow: auto; min-height: 0; }
+.asideCard { background: var(--card); }
+
+.heroNumber { font-size: var(--fs-hero); line-height: var(--lh-hero); font-weight: 600; letter-spacing: var(--ls-hero); font-variant-numeric: tabular-nums; }
+.heroCaption { margin-top: 10px; font-size: 15px; color: var(--muted); }
+
+.bottomBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  padding: 0 48px;
+  border-top: 2px solid var(--ink);
+  background: var(--card);
+}
+
+.chatPrompt { display: flex; flex-direction: column; gap: 4px; }
+.chatPromptText { font-size: 24px; color: var(--muted); }
+.chatPromptHint { font-size: 13px; color: var(--muted); }
