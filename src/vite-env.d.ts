@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_AUTH_URL?: string;
   /** "true" while screens run on the built-in mock API. */
   readonly VITE_USE_MOCK_API?: string;
+  /** "true" signs in with the built-in demo account instead of nest-foo-auth. */
+  readonly VITE_USE_MOCK_AUTH?: string;
 }
 
 interface ImportMeta {

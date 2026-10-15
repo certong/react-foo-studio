@@ -22,6 +22,10 @@ export function setAccessToken(token: string | null) {
   accessToken = token;
 }
 
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
 /**
  * A fresh key for one user action on a money or publish route. Reuse the same key when retrying
  * that action, so the server can tell a retry from a second click.

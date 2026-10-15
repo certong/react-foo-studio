@@ -1,83 +1,61 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { verifyPin, type AuthUser } from '@/api/auth';
-import { addDays, today } from '@/lib/date';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { login, logout, onSessionExpired, restore, type AuthUser } from '@/api/auth';
 
-const REMEMBER_DAYS = 30;
-const STORAGE_KEY = 'studio.session';
+type Status = 'checking' | 'signed-in' | 'signed-out';
 
-export interface RememberedDevice {
-  user: AuthUser;
-  /** ISO date the device stops being remembered. */
-  until: string;
-}
-
-interface Stored {
-  remembered: RememberedDevice | null;
-  user: AuthUser | null;
-}
-
-interface SessionValue extends Stored {
+interface SessionValue {
+  status: Status;
   signedIn: boolean;
-  signIn: (email: string, pin: string, remember: boolean) => Promise<void>;
-  unlock: (pin: string) => Promise<void>;
-  signOut: () => void;
-  forgetDevice: () => void;
+  user: AuthUser | null;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const SessionContext = createContext<SessionValue | null>(null);
 
-function load(): Stored {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { remembered: null, user: null };
-    const parsed = JSON.parse(raw) as Stored;
-    const expired = parsed.remembered && new Date(parsed.remembered.until) < today();
-    return { remembered: expired ? null : parsed.remembered, user: parsed.user };
-  } catch {
-    return { remembered: null, user: null };
-  }
-}
-
-function save(s: Stored) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch {
-    /* storage unavailable: session lasts for this tab only */
-  }
-}
-
+/**
+ * Who is signed in (FS-87). On load it resumes from nest-foo-auth's refresh cookie; until that
+ * answers, status is 'checking' so guarded pages don't bounce to Sign in on every reload.
+ */
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<Stored>(load);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [status, setStatus] = useState<Status>('checking');
 
-  const update = useCallback((next: Stored) => {
-    save(next);
-    setState(next);
+  useEffect(() => {
+    let alive = true;
+    restore().then((u) => {
+      if (!alive) return;
+      setUser(u);
+      setStatus(u ? 'signed-in' : 'signed-out');
+    });
+    onSessionExpired(() => {
+      setUser(null);
+      setStatus('signed-out');
+    });
+    return () => {
+      alive = false;
+      onSessionExpired(null);
+    };
   }, []);
 
-  const signIn = useCallback(
-    async (email: string, pin: string, remember: boolean) => {
-      const user = await verifyPin(email, pin);
-      const remembered = remember ? { user, until: addDays(today(), REMEMBER_DAYS).toISOString() } : null;
-      update({ user, remembered });
-    },
-    [update],
-  );
+  const signIn = useCallback(async (email: string, password: string) => {
+    const u = await login(email, password);
+    setUser(u);
+    setStatus('signed-in');
+  }, []);
 
-  const unlock = useCallback(
-    async (pin: string) => {
-      if (!state.remembered) throw new Error('No remembered device');
-      const user = await verifyPin(state.remembered.user.email, pin);
-      update({ ...state, user });
-    },
-    [state, update],
-  );
-
-  const signOut = useCallback(() => update({ ...state, user: null }), [state, update]);
-  const forgetDevice = useCallback(() => update({ user: null, remembered: null }), [update]);
+  const signOut = useCallback(async () => {
+    try {
+      await logout();
+    } finally {
+      setUser(null);
+      setStatus('signed-out');
+    }
+  }, []);
 
   const value = useMemo<SessionValue>(
-    () => ({ ...state, signedIn: state.user != null, signIn, unlock, signOut, forgetDevice }),
-    [state, signIn, unlock, signOut, forgetDevice],
+    () => ({ status, signedIn: status === 'signed-in', user, signIn, signOut }),
+    [status, user, signIn, signOut],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

@@ -16,3 +16,5 @@
 
 .actions { display: flex; align-items: center; gap: 32px; }
 .submit { padding: 0 40px; }
+.formError { margin: -8px 0 0; max-width: 860px; }
+.help { font-size: 15px; font-weight: 500; white-space: nowrap; }
