@@ -3,7 +3,6 @@ import { Button, ButtonLink } from '@/components/Button';
 import { StatusBadge } from '@/components/Badge';
 import { StepTracker } from '@/components/StepTracker';
 import type { StudioRequest } from '@/data/types';
-import { stepsFor } from '@/lib/steps';
 import { typeLabel } from '@/lib/requests';
 import { cx } from '@/lib/cx';
 import { routes } from '@/routes';
@@ -68,7 +67,7 @@ export function CheckFailed({ request, plain }: { request: StudioRequest; plain?
         <StatusBadge request={request} />
       </div>
       <h2 className={s.title}>{request.title}</h2>
-      <StepTracker steps={stepsFor(request)} />
+      <StepTracker steps={request.steps} />
       <p className={s.body}>{request.chiNote ?? "A check didn't pass, so nothing went live. Chi is fixing it."}</p>
       <p className={s.calm}>No action needed from you.</p>
     </section>

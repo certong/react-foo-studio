@@ -1,21 +1,32 @@
-export type RequestType = 'change' | 'page';
+import type { components } from '@/api/schema';
 
-/** Matches the database `request.status` (FS-85). */
-export type RequestStatus =
-  | 'draft'
-  | 'paused'
-  | 'submitted'
-  | 'building'
-  | 'checking'
-  | 'uat'
-  | 'live'
-  | 'pending_chi'
-  | 'closed';
+/*
+ * Contract types, generated from nest-foo-studio's openapi.json (FS-85). Never hand-write these:
+ * change the contract in nest-foo-studio and run `npm run api:types`.
+ */
+type Schemas = components['schemas'];
 
-/** Why a request was closed; set only when status is `closed`. */
-export type CloseReason = 'client_cancelled' | 'no_reply' | 'agent_closed';
+export type RequestType = Schemas['RequestType'];
+export type RequestStatus = Schemas['RequestStatus'];
+export type CloseReason = Schemas['CloseReason'];
+export type StatusKey = Schemas['StatusKey'];
+export type Owner = Schemas['Owner'];
+export type StepKey = Schemas['StepKey'];
+export type StepState = Schemas['StepState'];
+export type Step = Schemas['Step'];
+export type RequestCard = Schemas['RequestCard'];
+export type RequestDetail = Schemas['RequestDetail'];
+export type MeResponse = Schemas['MeResponse'];
+export type CreditsBlock = Schemas['CreditsBlock'];
+export type LedgerKind = Schemas['LedgerKind'];
+export type Topup = Schemas['Topup'];
+export type TopupStatus = Schemas['TopupStatus'];
+/** A chat message as the API sends it. The mock thread below still uses its own shape. */
+export type ApiChatMessage = Schemas['ChatMessage'];
+export type ChatPanel = Schemas['ChatPanel'];
 
-export type StepState = 'done' | 'now' | 'turn' | 'fail' | 'todo';
+/** A status on the normal path; on-hold and closed requests remember which of these they stopped at. */
+export type ActiveStatus = Exclude<RequestStatus, 'pending_chi' | 'closed'>;
 
 /** One step on the dated progress timeline (12 Request progress). */
 export interface TimelineStep {
@@ -47,19 +58,14 @@ export interface PageBlock {
   unmatched?: boolean;
 }
 
-export interface StudioRequest {
-  id: number;
-  type: RequestType;
-  title: string;
+/**
+ * Fields the mock keeps on a request for screens that aren't on the API yet. Each moves to the
+ * matching contract response (RequestDetail, ReviewResponse, PreviewResponse…) when its screen does.
+ */
+export interface RequestExtras {
   /** Used in "Skip to …" links. */
   shortTitle?: string;
-  status: RequestStatus;
-  closeReason?: CloseReason;
-  /** Index into the step list for this request type. */
-  currentStep: number;
   note: string;
-  /** Reply-by date (YYYY-MM-DD) for your-turn items. */
-  deadline?: string;
   /** Number of edits in a text change. */
   changeCount?: number;
   /** Credits for a change, or null for a new page (RM 100, invoiced). */
@@ -79,6 +85,24 @@ export interface StudioRequest {
   /** Draft kept until the monthly reset (13 Not enough credits → Wait). */
   scheduledFor?: string;
 }
+
+/** What the mock stores: the database view of a request, before the status is mapped. */
+export interface RequestRow extends RequestExtras {
+  id: number;
+  type: RequestType;
+  title: string;
+  status: RequestStatus;
+  closeReason: CloseReason | null;
+  /** On hold or closed: the status it stopped at, so the tracker stops on that step. */
+  stoppedAt?: ActiveStatus | null;
+  /** Reply-by date (YYYY-MM-DD) while it's the client's turn. */
+  replyBy: string | null;
+  creditsHeld: number;
+  updatedAt: string;
+}
+
+/** What screens see: a contract RequestCard (statusKey, badge, owner, steps[]) plus the mock's extras. */
+export type StudioRequest = RequestCard & RequestExtras;
 
 export interface PastRequest {
   id: number;
@@ -167,10 +191,16 @@ export interface Thread {
   summary?: string;
 }
 
-export interface StudioData {
+/** What the mock persists. */
+export interface MockData {
   credits: Credits;
   ledger: LedgerEntry[];
-  requests: StudioRequest[];
+  requests: RequestRow[];
   history: PastRequest[];
   threads: Record<number, Thread>;
+}
+
+/** What screens read: the same data, with every request mapped to the contract shape. */
+export interface StudioData extends Omit<MockData, 'requests'> {
+  requests: StudioRequest[];
 }

@@ -4,7 +4,7 @@ import { ButtonLink } from '@/components/Button';
 import { SegmentedSwitch } from '@/components/SegmentedSwitch';
 import { EmptyState } from '@/components/States';
 import { PRICES } from '@/data/seed';
-import type { PastRequest } from '@/data/types';
+import type { PastRequest, RequestType } from '@/data/types';
 import { useStudio } from '@/state/studio';
 import { parseDay, shortDay } from '@/lib/date';
 import { costLabel } from '@/lib/requests';
@@ -13,13 +13,13 @@ import { routes } from '@/routes';
 import t from '@/styles/type.module.css';
 import s from './History.module.css';
 
-type Filter = 'all' | 'change' | 'page';
+type Filter = 'all' | RequestType;
 const FILTERS: Array<{ key: Filter; label: string }> = [
   { key: 'all', label: 'All' },
   { key: 'change', label: 'Text changes' },
-  { key: 'page', label: 'New pages' },
+  { key: 'new_page', label: 'New pages' },
 ];
-const isFilter = (v: string | null): v is Filter => v === 'all' || v === 'change' || v === 'page';
+const isFilter = (v: string | null): v is Filter => v === 'all' || v === 'change' || v === 'new_page';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const monthOf = (iso: string) => {
@@ -48,7 +48,7 @@ export function History() {
   const groups = byMonth(shown);
 
   const creditsUsed = history.reduce((n, h) => n + (h.credits ?? 0), 0);
-  const pagesRm = history.filter((h) => h.type === 'page').length * PRICES.newPageRm;
+  const pagesRm = history.filter((h) => h.type === 'new_page').length * PRICES.newPageRm;
   const since = history.length ? parseDay([...history].sort((a, b) => a.date.localeCompare(b.date))[0].date).toLocaleDateString('en-GB', { month: 'long' }) : null;
 
   const aside = (
@@ -111,7 +111,7 @@ export function History() {
                     <span className={s.date}>{shortDay(x.date)}</span>
                     <div className={s.what}>
                       <span className={s.meta}>
-                        #{x.id} · {x.type === 'page' ? 'New page' : 'Text change'} · {x.scope}
+                        #{x.id} · {x.type === 'new_page' ? 'New page' : 'Text change'} · {x.scope}
                       </span>
                       <h3 className={s.title}>{x.title}</h3>
                     </div>

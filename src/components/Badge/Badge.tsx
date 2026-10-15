@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import type { CloseReason, RequestStatus } from '@/data/types';
+import type { StatusKey } from '@/data/types';
 import { cx } from '@/lib/cx';
-import { statusInfo, type BadgeTone } from '@/lib/status';
+import { badgeLook, type BadgeTone } from '@/lib/status';
 import s from './Badge.module.css';
 
 interface BadgeProps {
@@ -15,13 +15,13 @@ export function Badge({ tone, size = 'md', className, children }: BadgeProps) {
   return <span className={cx(s.badge, s[tone], size === 'lg' && s.lg, className)}>{children}</span>;
 }
 
-/** Badge for a request, from the shared FS-85 status mapping (e.g. "Ready to Check (You)"). */
-export function StatusBadge({ request, size }: { request: { status: RequestStatus; closeReason?: CloseReason }; size?: 'md' | 'lg' }) {
-  const { label, tone, icon } = statusInfo(request);
+/** Badge for a request: the words come from the API's `badge`, the colour and icon from its `statusKey`. */
+export function StatusBadge({ request, size }: { request: { statusKey: StatusKey; badge: string }; size?: 'md' | 'lg' }) {
+  const { tone, icon } = badgeLook[request.statusKey];
   return (
     <Badge tone={tone} size={size}>
       {icon && <span aria-hidden="true">{icon}</span>}
-      {label}
+      {request.badge}
     </Badge>
   );
 }

@@ -16,7 +16,7 @@ import t from '@/styles/type.module.css';
 import { useStartChat } from './ChatStart';
 import s from './Chat.module.css';
 
-const NEW: Record<string, RequestType> = { 'new-change': 'change', 'new-page': 'page' };
+const NEW: Record<string, RequestType> = { 'new-change': 'change', 'new-page': 'new_page' };
 
 /** /chat/:id — 07 (text change) or 08 (new page), decided by the thread. `new-change` / `new-page` start one. */
 export function ChatThread() {
@@ -46,15 +46,15 @@ function NewThread({ kind }: { kind: RequestType }) {
   const virtual: ThreadData = {
     id: 0,
     kind,
-    title: kind === 'page' ? 'New page' : 'New change',
+    title: kind === 'new_page' ? 'New page' : 'New change',
     savedOn: '',
     composer: draft,
     cost: kind === 'change' ? PRICES.change : 0,
     setAside: false,
     changes: [],
-    plan: kind === 'page' ? [] : undefined,
+    plan: kind === 'new_page' ? [] : undefined,
     previewsUsed: 0,
-    messages: [{ id: 'hello', from: 'agent', text: kind === 'page' ? 'What should the new page be about?' : 'Hi Mei! What would you like to change?' }],
+    messages: [{ id: 'hello', from: 'agent', text: kind === 'new_page' ? 'What should the new page be about?' : 'Hi Mei! What would you like to change?' }],
   };
   return (
     <Layout
@@ -103,8 +103,8 @@ function ThreadScreen({ thread, request }: { thread: ThreadData; request?: Studi
           onChange={(v) => saveComposer(thread.id, v)}
           onSend={send}
           sending={thread.typing}
-          extra={thread.kind === 'page' ? <SketchButton onPick={onSketch} disabled={thread.typing} /> : undefined}
-          hint={thread.kind === 'page' ? 'Screenshots or a hand-drawn sketch: up to 5, 5 MB each.' : undefined}
+          extra={thread.kind === 'new_page' ? <SketchButton onPick={onSketch} disabled={thread.typing} /> : undefined}
+          hint={thread.kind === 'new_page' ? 'Screenshots or a hand-drawn sketch: up to 5, 5 MB each.' : undefined}
         />
       }
       aside={thread.kind === 'change' ? <ChangesPanel thread={thread} request={request} /> : <PlanPanel thread={thread} request={request} />}
@@ -118,7 +118,7 @@ function Layout({ thread, request, composer, aside, after }: { thread: ThreadDat
       <span className={t.label}>agent-ba</span>
       <span className={s.heroMeta}>
         {thread.id ? `#${thread.id} · ` : ''}
-        {thread.kind === 'page' ? `New page${thread.title !== 'New page' ? ` · ${thread.title}` : ''}` : thread.title}
+        {thread.kind === 'new_page' ? `New page${thread.title !== 'New page' ? ` · ${thread.title}` : ''}` : thread.title}
       </span>
       {request ? <StatusBadge request={request} /> : <DraftTag />}
     </>

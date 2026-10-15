@@ -1,6 +1,6 @@
 import type { StudioRequest } from '@/data/types';
 import { daysBetween, formatShort, parseDay, today } from '@/lib/date';
-import { focusRank, statusInfo } from '@/lib/status';
+import { badgeLook, focusRank } from '@/lib/status';
 import { routes } from '@/routes';
 
 /** Reply window for your-turn items (approve a change, review a preview). */
@@ -14,15 +14,20 @@ export function costLabel(credits: number | null): string {
 }
 
 export function typeLabel(r: Pick<StudioRequest, 'type'>): string {
-  return r.type === 'page' ? 'New page' : 'Change';
+  return r.type === 'new_page' ? 'New page' : 'Change';
+}
+
+/** Problem tone (On Hold): notes show in red. */
+export function isProblem(r: Pick<StudioRequest, 'statusKey'>) {
+  return badgeLook[r.statusKey].tone === 'prob';
 }
 
 export function isOpen(r: StudioRequest) {
   return !ENDED.has(r.status);
 }
 
-export function isYourTurn(r: StudioRequest) {
-  return statusInfo(r).tone === 'turn';
+export function isYourTurn(r: Pick<StudioRequest, 'statusKey'>) {
+  return r.statusKey === 'Ready-to-Check-You';
 }
 
 /** Row action label per status (04 Requests). */
@@ -63,10 +68,10 @@ export function requestHref(r: StudioRequest): string {
  */
 export function byFocus(requests: StudioRequest[]): StudioRequest[] {
   return requests.filter(isOpen).sort((a, b) => {
-    const rank = focusRank[statusInfo(a).tone] - focusRank[statusInfo(b).tone];
+    const rank = focusRank[badgeLook[a.statusKey].tone] - focusRank[badgeLook[b.statusKey].tone];
     if (rank) return rank;
-    if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
-    if (a.deadline || b.deadline) return a.deadline ? -1 : 1;
+    if (a.replyBy && b.replyBy) return a.replyBy.localeCompare(b.replyBy);
+    if (a.replyBy || b.replyBy) return a.replyBy ? -1 : 1;
     return b.id - a.id;
   });
 }
@@ -81,8 +86,8 @@ export interface Deadline {
 }
 
 export function deadlineFor(r: StudioRequest, now = today()): Deadline | null {
-  if (!r.deadline) return null;
-  const date = parseDay(r.deadline);
+  if (!r.replyBy) return null;
+  const date = parseDay(r.replyBy);
   const daysLeft = Math.max(0, daysBetween(now, date));
   const label = formatShort(date);
   const left = daysLeft === 0 ? 'last day' : `${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left`;

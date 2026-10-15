@@ -1,4 +1,4 @@
-import type { PageBlock, ReviewChange, Session, StudioData } from './types';
+import type { MockData, PageBlock, ReviewChange, Session } from './types';
 
 export const session: Session = {
   name: 'Mei',
@@ -74,7 +74,7 @@ export const sketchPlan: PageBlock[] = [
   { kind: 'Photo gallery', title: 'not a block on your site yet', unmatched: true },
 ];
 
-export function seedData(): StudioData {
+export function seedData(): MockData {
   return {
     credits: { monthly: 200, free: 125, setAside: 20, used: 55, topUp: 0, resetDate: '2026-11-01', topUpRequest: 'none' },
     ledger: [
@@ -91,7 +91,10 @@ export function seedData(): StudioData {
         title: 'Opening hours and WhatsApp',
         shortTitle: 'Opening hours',
         status: 'uat',
-        currentStep: 2,
+        closeReason: null,
+        replyBy: null,
+        creditsHeld: 20,
+        updatedAt: '2026-10-14T01:00:00.000Z',
         note: '3 changes · 20 credits set aside',
         changeCount: 3,
         credits: 20,
@@ -105,12 +108,14 @@ export function seedData(): StudioData {
       },
       {
         id: 41,
-        type: 'page',
+        type: 'new_page',
         title: 'Catering',
         status: 'uat',
-        currentStep: 3,
+        closeReason: null,
+        replyBy: '2026-10-20',
+        creditsHeld: 0,
+        updatedAt: '2026-10-14T01:00:00.000Z',
         note: 'Reply by 20 Oct · 1 free change round',
-        deadline: '2026-10-20',
         credits: null,
         previewUrl: '/staging/catering.html',
         freeRounds: 1,
@@ -131,10 +136,13 @@ export function seedData(): StudioData {
       },
       {
         id: 42,
-        type: 'page',
+        type: 'new_page',
         title: 'Our Story',
         status: 'building',
-        currentStep: 1,
+        closeReason: null,
+        replyBy: null,
+        creditsHeld: 0,
+        updatedAt: '2026-10-14T01:00:00.000Z',
         note: 'Ready by 16 Oct',
         credits: null,
         signedOff: '2026-10-13',
@@ -149,10 +157,14 @@ export function seedData(): StudioData {
       },
       {
         id: 37,
-        type: 'page',
+        type: 'new_page',
         title: 'Events',
         status: 'pending_chi',
-        currentStep: 2,
+        closeReason: null,
+        stoppedAt: 'checking',
+        replyBy: null,
+        creditsHeld: 0,
+        updatedAt: '2026-10-14T01:00:00.000Z',
         note: "A check didn't pass. Chi is on it. Nothing went live.",
         credits: null,
         signedOff: '2026-10-02',
@@ -175,7 +187,10 @@ export function seedData(): StudioData {
         type: 'change',
         title: 'About us text',
         status: 'live',
-        currentStep: 3,
+        closeReason: null,
+        replyBy: null,
+        creditsHeld: 0,
+        updatedAt: '2026-10-14T01:00:00.000Z',
         note: 'Live since 10 Oct · 20 credits',
         credits: 20,
         changes: [
@@ -204,7 +219,7 @@ export function seedData(): StudioData {
           { kind: 'text', where: 'Menu · Iced latte', rows: [{ lang: 'English', now: 'RM 11', after: 'RM 12' }] },
         ],
       },
-      { id: 36, type: 'page', title: 'New page: Seasonal menu', date: '2026-10-02', scope: '4 sections', credits: null, changes: [] },
+      { id: 36, type: 'new_page', title: 'New page: Seasonal menu', date: '2026-10-02', scope: '4 sections', credits: null, changes: [] },
       {
         id: 35,
         type: 'change',
@@ -223,7 +238,7 @@ export function seedData(): StudioData {
         credits: 20,
         changes: [{ kind: 'text', where: 'All pages · Footer', rows: [{ lang: 'English', now: 'Open everyday', after: 'Open every day' }] }],
       },
-      { id: 33, type: 'page', title: 'New page: Gift cards', date: '2026-09-05', scope: '3 sections', credits: null, changes: [] },
+      { id: 33, type: 'new_page', title: 'New page: Gift cards', date: '2026-09-05', scope: '3 sections', credits: null, changes: [] },
       {
         id: 31,
         type: 'change',
@@ -267,7 +282,7 @@ export function seedData(): StudioData {
       },
       44: {
         id: 44,
-        kind: 'page',
+        kind: 'new_page',
         title: 'Workshops',
         savedOn: '2026-10-14',
         composer: '',
