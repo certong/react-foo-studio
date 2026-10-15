@@ -1,0 +1,39 @@
+#!/bin/sh
+# Guards every update to development, uat and main, including fast-forwards, resets,
+# --amend and `git branch -f`, which commit hooks never see.
+# Each of them may only move by a merge commit from the branch below it:
+#   feature/* → development → uat → main
+[ "$1" = prepared ] || exit 0
+
+is_zero() { case "$1" in *[!0]*) return 1 ;; *) return 0 ;; esac; }
+tip() { git rev-parse -q --verify "$1" 2>/dev/null; }
+is_tip() { [ "$src" = "$(tip "refs/heads/$1")" ] || [ "$src" = "$(tip "refs/remotes/origin/$1")" ]; }
+
+status=0
+while read -r old new ref; do
+  case "$ref" in refs/heads/main | refs/heads/uat | refs/heads/development) ;; *) continue ;; esac
+  branch=${ref#refs/heads/}
+  is_zero "$old" && continue # creating the branch (first setup or a fresh clone)
+  if is_zero "$new"; then
+    echo "✋ Deleting '$branch' isn't allowed." >&2
+    status=1
+    continue
+  fi
+  # Catching up with the same branch on origin (git pull) is fine.
+  [ "$new" = "$(tip "refs/remotes/origin/$branch")" ] && continue
+
+  set -- $(git rev-list --parents -n 1 "$new")
+  if [ $# -ne 3 ] || [ "$2" != "$old" ]; then
+    echo "✋ '$branch' only moves by a merge commit from the branch below it (git merge --no-ff)." >&2
+    echo "   Order is: feature/* → development → uat → main." >&2
+    status=1
+    continue
+  fi
+  src=$3
+  case "$branch" in
+    uat) is_tip development || { echo "✋ 'uat' only takes merges from 'development'." >&2; status=1; } ;;
+    main) is_tip uat || { echo "✋ 'main' only takes merges from 'uat'." >&2; status=1; } ;;
+    development) if is_tip uat || is_tip main; then echo "✋ 'development' takes merges from feature branches only." >&2; status=1; fi ;;
+  esac
+done
+exit $status
