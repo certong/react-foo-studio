@@ -8,7 +8,7 @@ import s from './States.module.css';
 export function States() {
   const { requests } = useStudio();
   const toast = useToast();
-  const failed = requests.find((r) => r.status === 'with_chi');
+  const failed = requests.find((r) => r.status === 'pending_chi');
 
   return (
     <AppShell>

@@ -6,13 +6,16 @@ import { StepTracker } from '@/components/StepTracker';
 import { SegmentedSwitch } from '@/components/SegmentedSwitch';
 import { ChatPromptBar, HeroNumber } from '@/components/Layout';
 import { useStudio } from '@/state/studio';
-import type { RequestStatus } from '@/data/types';
+import type { CloseReason, RequestStatus } from '@/data/types';
 import { stepsFor } from '@/lib/steps';
 import { routes } from '@/routes';
 import t from '@/styles/type.module.css';
 import s from './Kit.module.css';
 
-const STATUSES: RequestStatus[] = ['in_progress', 'building', 'approve', 'preview', 'with_chi', 'live', 'closed', 'dropped'];
+const STATUSES: Array<{ status: RequestStatus; closeReason?: CloseReason }> = [
+  { status: 'draft' }, { status: 'building' }, { status: 'checking' }, { status: 'uat' }, { status: 'pending_chi' }, { status: 'live' },
+  { status: 'closed', closeReason: 'client_cancelled' }, { status: 'closed', closeReason: 'no_reply' }, { status: 'closed', closeReason: 'agent_closed' },
+];
 const NAV: NavKey[] = ['home', 'requests', 'credits', 'chat'];
 
 /** FS-69 component sheet: every shared piece in each of its states. */
@@ -77,7 +80,7 @@ export function Kit() {
         <h2 className={t.label}>Badges</h2>
         <div className={s.row}>
           {STATUSES.map((st) => (
-            <StatusBadge key={st} status={st} />
+            <StatusBadge key={st.status + (st.closeReason ?? '')} request={st} />
           ))}
           <DraftTag />
           <Badge tone="turn">Waiting for payment</Badge>
@@ -93,7 +96,7 @@ export function Kit() {
             <div key={r.id} className={s.tracker}>
               <span className={s.row}>
                 <span className={t.meta}>#{r.id} · {r.type === 'page' ? 'New page' : 'Change'}</span>
-                <StatusBadge status={r.status} />
+                <StatusBadge request={r} />
               </span>
               <strong className={t.title}>{r.title}</strong>
               <StepTracker steps={stepsFor(r)} />

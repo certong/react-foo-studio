@@ -31,7 +31,7 @@ export function Review() {
   const past = history.find((h) => h.id === id);
   const title = active?.title ?? past?.title;
   const changes: ReviewChange[] = (active?.changes?.length ? active.changes : past?.changes) ?? [];
-  const approvable = active?.status === 'approve';
+  const approvable = active?.status === 'uat' && active.type === 'change';
   const hasMalay = changes.some((c) => c.kind === 'text' && c.rows.some((r) => r.lang === 'Malay'));
 
   if (!title) {
