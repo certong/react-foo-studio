@@ -13,7 +13,11 @@ status=0
 while read -r old new ref; do
   case "$ref" in refs/heads/main | refs/heads/uat | refs/heads/development) ;; *) continue ;; esac
   branch=${ref#refs/heads/}
-  is_zero "$old" && continue # creating the branch (first setup or a fresh clone)
+  # An all-zero old value means git isn't checking it (e.g. git branch -f / -D), not that the
+  # branch is new, so look up where the branch is now.
+  if is_zero "$old"; then
+    old=$(tip "$ref") || continue # the branch really is new (first setup or a fresh clone)
+  fi
   if is_zero "$new"; then
     echo "✋ Deleting '$branch' isn't allowed." >&2
     status=1
