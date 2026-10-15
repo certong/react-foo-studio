@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { AppShell, Columns, HeroNumber } from '@/components/Layout';
 import { ButtonLink } from '@/components/Button';
-import { DraftTag, StatusBadge } from '@/components/Badge';
+import { StatusBadge } from '@/components/Badge';
 import { StepDot } from '@/components/StepTracker';
 import { EmptyState } from '@/components/States';
 import { PRICES } from '@/data/seed';
@@ -42,7 +42,7 @@ export function Progress() {
             <span>
               #{r.id} · {typeLabel(r)}
             </span>
-            {r.status === 'draft' ? <DraftTag /> : <StatusBadge status={r.status} />}
+            <StatusBadge request={r} />
           </div>
           <h1 className={s.h1}>{r.title}</h1>
         </div>
@@ -123,7 +123,7 @@ function SignedOff({ r }: { r: StudioRequest }) {
         </div>
       ))}
       <p className={s.note}>
-        {r.status === 'with_chi'
+        {r.status === 'pending_chi'
           ? "No action needed from you. Chi will message you when it's fixed."
           : "You'll get a message when the preview is ready. You then have 7 days and 1 free change round."}
       </p>

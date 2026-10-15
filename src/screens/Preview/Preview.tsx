@@ -22,7 +22,7 @@ export function Preview() {
   const [busy, setBusy] = useState<'approve' | 'changes' | null>(null);
   const r = requests.find((x) => x.id === id);
 
-  if (!r || r.status !== 'preview' || !r.previewUrl) {
+  if (!r || r.status !== 'uat' || r.type !== 'page' || !r.previewUrl) {
     return (
       <AppShell>
         <Columns hero={<HeroNumber value="—" />} aside={null}>

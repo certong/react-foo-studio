@@ -120,7 +120,7 @@ function Layout({ thread, request, composer, aside, after }: { thread: ThreadDat
         {thread.id ? `#${thread.id} · ` : ''}
         {thread.kind === 'page' ? `New page${thread.title !== 'New page' ? ` · ${thread.title}` : ''}` : thread.title}
       </span>
-      {request && request.status !== 'draft' ? <StatusBadge status={request.status} /> : <DraftTag />}
+      {request ? <StatusBadge request={request} /> : <DraftTag />}
     </>
   );
   return (
@@ -197,11 +197,11 @@ function ChangesPanel({ thread, request }: { thread: ThreadData; request?: Studi
         <strong>{thread.setAside ? `${thread.cost} credits set aside` : `${thread.cost} credits for this change`}</strong>
         <span>{thread.setAside ? 'Charged only when you approve.' : 'Set aside when you send. Charged only when you approve.'}</span>
       </div>
-      {request?.status === 'approve' ? (
+      {request?.status === 'uat' ? (
         <ButtonLink to={routes.review(thread.id)} size="lg" block>
           Check before and after
         </ButtonLink>
-      ) : request && request.status !== 'draft' ? (
+      ) : request && request.status !== 'draft' && request.status !== 'paused' ? (
         <ButtonLink to={routes.progress(thread.id)} variant="secondary" block>
           See progress
         </ButtonLink>

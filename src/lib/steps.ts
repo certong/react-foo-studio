@@ -1,8 +1,9 @@
-import type { RequestStatus, RequestType, StepState, StudioRequest } from '@/data/types';
+import type { RequestType, StepState, StudioRequest } from '@/data/types';
+import { statusInfo } from '@/lib/status';
 
 export const STEP_LABELS: Record<RequestType, string[]> = {
-  change: ['Plan', 'Check', 'Approve', 'Live'],
-  page: ['Plan', 'Build', 'Check', 'Approve', 'Live'],
+  change: ['Plan', 'Check', 'Ready to Check', 'Live'],
+  page: ['Plan', 'Build', 'Check', 'Ready to Check', 'Live'],
 };
 
 export interface Step {
@@ -10,17 +11,6 @@ export interface Step {
   state: StepState;
 }
 
-const currentState: Record<RequestStatus, StepState> = {
-  draft: 'todo',
-  in_progress: 'now',
-  building: 'now',
-  approve: 'turn',
-  preview: 'turn',
-  with_chi: 'fail',
-  live: 'done',
-  closed: 'todo',
-  dropped: 'todo',
-};
 
 export function buildSteps(type: RequestType, current: number, kind: StepState): Step[] {
   return STEP_LABELS[type].map((label, i) => ({
@@ -29,6 +19,7 @@ export function buildSteps(type: RequestType, current: number, kind: StepState):
   }));
 }
 
-export function stepsFor(req: Pick<StudioRequest, 'type' | 'status' | 'currentStep'>): Step[] {
-  return buildSteps(req.type, req.currentStep, currentState[req.status]);
+/** Tracker for a request. Closed and on-hold requests stop at the step they reached. */
+export function stepsFor(req: Pick<StudioRequest, 'type' | 'status' | 'closeReason' | 'currentStep'>): Step[] {
+  return buildSteps(req.type, req.currentStep, statusInfo(req).step);
 }

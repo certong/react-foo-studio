@@ -65,7 +65,7 @@ export function CheckFailed({ request, plain }: { request: StudioRequest; plain?
         <span>
           #{request.id} · {typeLabel(request)}
         </span>
-        <StatusBadge status={request.status} />
+        <StatusBadge request={request} />
       </div>
       <h2 className={s.title}>{request.title}</h2>
       <StepTracker steps={stepsFor(request)} />

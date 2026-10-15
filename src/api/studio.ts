@@ -6,7 +6,7 @@ import { PRICES, seedData, sketchPlan } from '@/data/seed';
 import type { Attachment, ChatMessage, LedgerEntry, PageBlock, RequestType, StudioData, StudioRequest, Thread } from '@/data/types';
 import { addDays, addWorkingDays, formatShort, shortDay, today, toIsoDay } from '@/lib/date';
 
-const STORAGE_KEY = 'studio.data.v1';
+const STORAGE_KEY = 'studio.data.v2'; // v2: FS-85 statuses
 const LATENCY_MS = 500;
 const AGENT_MS = 900;
 
@@ -164,7 +164,7 @@ export async function submitChanges(id: number) {
       id,
       type: 'change',
       title: th.title,
-      status: 'in_progress',
+      status: 'checking',
       currentStep: 1,
       note: `${th.changes.length} ${th.changes.length === 1 ? 'change' : 'changes'} · ${th.cost} credits set aside · before and after by tomorrow`,
       changeCount: th.changes.length,
