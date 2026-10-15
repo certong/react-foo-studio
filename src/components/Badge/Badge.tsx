@@ -5,7 +5,7 @@ import { badgeLook, type BadgeTone } from '@/lib/status';
 import s from './Badge.module.css';
 
 interface BadgeProps {
-  tone: BadgeTone | 'info';
+  tone: BadgeTone | 'info' | 'tag';
   size?: 'md' | 'lg';
   className?: string;
   children: ReactNode;
@@ -26,7 +26,7 @@ export function StatusBadge({ request, size }: { request: { statusKey: StatusKey
   );
 }
 
-/** Plan not signed off yet. Dashed so it never reads as a button. */
+/** Plan not signed off yet: a quiet grey tag beside the thread title. */
 export function DraftTag() {
-  return <Badge tone="draft">Draft</Badge>;
+  return <Badge tone="tag">Draft</Badge>;
 }

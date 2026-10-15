@@ -22,6 +22,10 @@
   --primary: #0f172a; --primary-hover: #1e293b; --secondary-hover: #f1f5f9;
   --disabled-bg: #e5e7eb; --disabled-fg: #5b6b80; --disabled-bd: #d1d5db;
   --error: #b91c1c;
+  /* soft filled inputs */
+  --input-bg: #eef1f5; --input-ring: 0 0 0 3px rgba(15, 23, 42, 0.08); --r-input: 10px;
+  /* top-up credits */
+  --topup-bg: #e4e6ff; --topup-bd: #c7cbff; --topup-ink: #3730a3; --topup-bar: #a5abff;
 
   /* credits */
   --credit-free: #16a34a;  --credit-free-ink: #15803d;
@@ -52,11 +56,13 @@
   /* motion */
   --ease-thumb: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-slide: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* layout */
   --topbar-h: 64px;
   --col-hero: 200px;
   --col-aside: 360px;
+  --frame-max: 1440px;
 }
 
 /* Keyframes live in the CSS module that uses them: CSS Modules scopes animation names locally. */

@@ -12,7 +12,7 @@ const stateText: Record<StepState, string> = {
 };
 const stateClass: Record<StepState, string | undefined> = { done: s.done, now: s.now, your_turn: s.turn, problem: s.fail, todo: undefined };
 
-/** "Timeline" tracker: 14px dots joined by 2px lines, 11px labels. Renders the API's steps[] as-is. */
+/** "Timeline" tracker: 12px dots joined by 2px lines, 11px labels. Renders the API's steps[] as-is. */
 export function StepTracker({ steps, className }: { steps: Step[]; className?: string }) {
   return (
     <ol className={cx(s.tracker, className)} aria-label="Progress">
@@ -20,7 +20,7 @@ export function StepTracker({ steps, className }: { steps: Step[]; className?: s
         <li key={step.key} className={cx(s.step, stateClass[step.state])}>
           <span className={s.node} aria-hidden="true">
             <span className={s.line} />
-            <StepDot state={step.state} />
+            <StepDot state={step.state} size={12} />
           </span>
           <span className={s.label}>
             {step.label}

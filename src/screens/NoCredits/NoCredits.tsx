@@ -99,7 +99,10 @@ export function NoCredits() {
             ! Not enough credits
           </Badge>
           <h1 className={s.h1}>You're {short} credits short for this change</h1>
-          <p className={s.lead}>Nothing has started and nothing was charged. Your draft is saved.</p>
+          <p className={s.lead}>
+            A change needs {needed} credits. You have {credits.free} ({monthlyFree} monthly, {topupFree} top-up).
+          </p>
+          <p className={s.calm}>Nothing has started and nothing was charged. Your draft is saved.</p>
         </div>
 
         <div className={s.block} style={{ gap: 10 }}>
@@ -113,9 +116,6 @@ export function NoCredits() {
             {have > 0 && <div className={s.have}>You have {have}</div>}
             <div className={s.short}>Short by {short}</div>
           </div>
-          <span className={s.split}>
-            {monthlyFree} monthly · {topupFree} top-up
-          </span>
         </div>
 
         <div className={s.draft}>
@@ -143,7 +143,7 @@ export function NoCredits() {
               </span>
               <span className={s.cardBody}>RM {PRICES.topUpRm} by DuitNow. Your change starts once Chi confirms payment, usually the same day.</span>
               <span className={buttonClass({ block: true }, s.cardBtn)} aria-hidden="true">
-                Top up · RM {PRICES.topUpRm}
+                Top up
               </span>
             </Link>
             <Link to={routes.requests} onClick={wait} className={cx('card-link', s.card)} aria-busy={waiting || undefined}>

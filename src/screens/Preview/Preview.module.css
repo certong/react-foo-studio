@@ -11,7 +11,9 @@
 .h2 { margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.03em; }
 .body { margin: 0; font-size: 15px; line-height: 1.5; color: var(--body); }
 .feedback { display: flex; flex-direction: column; gap: 8px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; font-weight: 600; }
-.textarea { padding: 12px 14px; border: 1px solid #d1d5db; border-radius: var(--r-btn); font-size: 15px; font-weight: 400; resize: vertical; }
-.textarea:focus { outline: 2px solid var(--link); outline-offset: 2px; }
+/* Soft filled, same as text inputs. */
+.textarea { padding: 12px 14px; border: 1px solid transparent; border-radius: var(--r-input); background: var(--input-bg); color: var(--ink); font-size: 15px; font-weight: 400; resize: vertical; transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+.textarea::placeholder { color: var(--muted); }
+.textarea:focus { outline: none; background: #fff; border-color: var(--ink); box-shadow: var(--input-ring); }
 .rounds { font-size: 13px; font-weight: 400; color: var(--muted); }
 .close { margin: auto 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
