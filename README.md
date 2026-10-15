@@ -16,7 +16,13 @@ Sign in with **mei@kopilane.com**, PIN **123456**. Any other PIN shows the "didn
 
 ## Branches
 
-Work flows `feature/*` → `development` → `uat` → `main`. Commit on a feature branch cut from `development`, never straight to the three long-lived branches. The hooks in [`.githooks/`](.githooks/README.md) enforce this locally once you run the setup commands there.
+Work flows `feature/*` → `development` → `uat` → `main`.
+
+1. Cut a feature branch from `development`, commit there and push it.
+2. Open a pull request into `development`. Later PRs go `development` → `uat` and `uat` → `main`.
+3. Pull the long-lived branches; don't merge into them locally.
+
+On GitHub, branch protection requires pull requests, and the **Branch flow** check ([`.github/workflows/branch-flow.yml`](.github/workflows/branch-flow.yml)) rejects a PR from the wrong branch. Locally, the hooks in [`.githooks/`](.githooks/README.md) block direct commits once you run the setup commands there.
 
 ## Mock API
 

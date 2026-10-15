@@ -1,0 +1,29 @@
+# Promotion order: feature/* → development → uat → main.
+# Branch protection can't restrict where a pull request comes from, so this check does.
+# Make "Branch flow / source-branch" a required status check on development, uat and main.
+name: Branch flow
+
+on:
+  pull_request:
+    branches: [development, uat, main]
+
+permissions: {}
+
+jobs:
+  source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the pull request comes from the stage below
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          case "$BASE" in
+            main) [ "$HEAD" = uat ] || { echo "::error::'main' only takes pull requests from 'uat' (this one is from '$HEAD')."; exit 1; } ;;
+            uat) [ "$HEAD" = development ] || { echo "::error::'uat' only takes pull requests from 'development' (this one is from '$HEAD')."; exit 1; } ;;
+            development)
+              case "$HEAD" in
+                uat | main) echo "::error::'development' takes feature branches only (this one is from '$HEAD')."; exit 1 ;;
+              esac ;;
+          esac
+          echo "OK: $HEAD → $BASE"
