@@ -1,0 +1,14 @@
+#!/bin/sh
+# No direct commits on development, uat or main: work happens on feature branches.
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+case "$branch" in
+  main|uat|development)
+    # Finishing a merge (e.g. after resolving conflicts) is allowed if the source is right.
+    if [ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]; then
+      exec "$(dirname "$0")/check-merge-source"
+    fi
+    echo "✋ Direct commits to '$branch' aren't allowed." >&2
+    echo "   Commit on a feature branch cut from development, then merge it into development." >&2
+    exit 1 ;;
+esac
+exit 0

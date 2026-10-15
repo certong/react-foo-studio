@@ -1,0 +1,6 @@
+#!/bin/sh
+# Checks the source of merges into development, uat and main.
+case "$(git symbolic-ref --short HEAD 2>/dev/null)" in
+  main|uat|development) exec "$(dirname "$0")/check-merge-source" ;;
+esac
+exit 0

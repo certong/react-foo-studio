@@ -1,0 +1,31 @@
+#!/bin/sh
+# Promotion order: feature/* → development → uat → main.
+# Runs while a merge commit is being made on a protected branch.
+git_dir=$(git rev-parse --git-dir)
+target=$(git symbolic-ref --short HEAD 2>/dev/null)
+merge_head="$git_dir/MERGE_HEAD"
+
+fail() {
+  echo "✋ $1" >&2
+  echo "   Order is: feature/* → development → uat → main." >&2
+  exit 1
+}
+
+[ "$(wc -l < "$merge_head")" -eq 1 ] || fail "Merge one branch at a time into '$target'."
+src=$(head -n 1 "$merge_head")
+
+# True when $src is the tip of the named branch, locally or on origin.
+is_tip() {
+  for ref in "refs/heads/$1" "refs/remotes/origin/$1"; do
+    [ "$src" = "$(git rev-parse -q --verify "$ref" 2>/dev/null)" ] && return 0
+  done
+  return 1
+}
+
+case "$target" in
+  uat)  is_tip development || fail "'uat' only takes merges from 'development'." ;;
+  main) is_tip uat || fail "'main' only takes merges from 'uat'." ;;
+  development)
+    if is_tip uat || is_tip main; then fail "'development' takes merges from feature branches only."; fi ;;
+esac
+exit 0
