@@ -1,15 +1,19 @@
 export type RequestType = 'change' | 'page';
 
+/** Matches the database `request.status` (FS-85). */
 export type RequestStatus =
   | 'draft'
-  | 'in_progress'
+  | 'paused'
+  | 'submitted'
   | 'building'
-  | 'approve'
-  | 'preview'
-  | 'with_chi'
+  | 'checking'
+  | 'uat'
   | 'live'
-  | 'closed'
-  | 'dropped';
+  | 'pending_chi'
+  | 'closed';
+
+/** Why a request was closed; set only when status is `closed`. */
+export type CloseReason = 'client_cancelled' | 'no_reply' | 'agent_closed';
 
 export type StepState = 'done' | 'now' | 'turn' | 'fail' | 'todo';
 
@@ -50,6 +54,7 @@ export interface StudioRequest {
   /** Used in "Skip to …" links. */
   shortTitle?: string;
   status: RequestStatus;
+  closeReason?: CloseReason;
   /** Index into the step list for this request type. */
   currentStep: number;
   note: string;

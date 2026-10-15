@@ -14,9 +14,19 @@ npm run build      # typecheck + production build
 
 Sign in with **mei@kopilane.com**, PIN **123456**. Any other PIN shows the "didn't match" error. After 5 wrong tries in a minute the PIN is locked for a minute.
 
+## Branches
+
+Work flows `feature/*` → `development` → `uat` → `main`.
+
+1. Cut a feature branch from `development`, commit there and push it.
+2. Open a pull request into `development`. Later PRs go `development` → `uat` and `uat` → `main`.
+3. Pull the long-lived branches; don't merge into them locally.
+
+On GitHub, branch protection requires pull requests, and the **Branch flow** check ([`.github/workflows/branch-flow.yml`](.github/workflows/branch-flow.yml)) rejects a PR from the wrong branch. Locally, the hooks in [`.githooks/`](.githooks/README.md) block direct commits once you run the setup commands there.
+
 ## Mock API
 
-There's no backend yet. [`src/api/studio.ts`](src/api/studio.ts) is a mock API that keeps its data in memory, saves it to `localStorage` (`studio.data.v1`) and adds realistic delays. [`src/api/auth.ts`](src/api/auth.ts) does the same for sign-in. Screens only use these async calls, so a real backend can replace them without touching the screens.
+There's no backend yet. [`src/api/studio.ts`](src/api/studio.ts) is a mock API that keeps its data in memory, saves it to `localStorage` (`studio.data.v2`) and adds realistic delays. [`src/api/auth.ts`](src/api/auth.ts) does the same for sign-in. Screens only use these async calls, so a real backend can replace them without touching the screens.
 
 "Today" is fixed to Wed 14 Oct 2026 so the seed data matches the designs (`DEMO_TODAY` in [`src/lib/date.ts`](src/lib/date.ts)).
 

@@ -8,7 +8,7 @@ import { useStudio } from '@/state/studio';
 import type { StudioRequest } from '@/data/types';
 import { formatLong, greeting, today } from '@/lib/date';
 import { byFocus, deadlineFor, isYourTurn, REPLY_WINDOW_DAYS, requestHref, typeLabel } from '@/lib/requests';
-import { statusBadge } from '@/lib/status';
+import { statusInfo } from '@/lib/status';
 import { cx } from '@/lib/cx';
 import t from '@/styles/type.module.css';
 import s from './Home.module.css';
@@ -18,16 +18,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
 /** What the focus block says and offers, per status. */
 function focusCopy(r: StudioRequest): { lead: string; cta: string; primary: boolean } {
   switch (r.status) {
-    case 'preview':
-      return { lead: 'The page is ready to look at. It goes live only when you approve.', cta: 'Review preview', primary: true };
-    case 'approve':
+    case 'uat':
+      if (r.type === 'page') return { lead: 'The page is ready to look at. It goes live only when you approve.', cta: 'Review preview', primary: true };
       return {
         lead: `${r.changeCount ? `${r.changeCount} changes are` : 'Your change is'} ready to check. Nothing changes on ${session.site} until you approve.`,
         cta: 'Check before and after',
         primary: true,
       };
-    case 'with_chi':
+    case 'pending_chi':
       return { lead: "A check didn't pass, so nothing went live. Chi is fixing it. No action needed from you.", cta: 'See details', primary: false };
+    case 'draft':
+    case 'paused':
+      return { lead: `Your draft is saved. ${r.note}.`, cta: 'Open draft', primary: false };
     default:
       return { lead: `We're on it. ${r.note}.`, cta: 'See progress', primary: false };
   }
@@ -98,7 +100,7 @@ function Focus({ r }: { r: StudioRequest }) {
         <span>
           #{r.id} · {typeLabel(r)}
         </span>
-        <StatusBadge status={r.status} />
+        <StatusBadge request={r} />
       </div>
       <h1 className={s.title}>{r.title}</h1>
       <p className={s.lead}>{copy.lead}</p>
@@ -136,14 +138,14 @@ function Empty({ hasRequests }: { hasRequests: boolean }) {
 
 function QueueItem({ r, prefix = '' }: { r: StudioRequest; prefix?: string }) {
   const deadline = deadlineFor(r);
-  const problem = statusBadge[r.status].tone === 'prob';
+  const problem = statusInfo(r).tone === 'prob';
   const detail = isYourTurn(r)
     ? [r.changeCount ? `${r.changeCount} changes` : null, deadline ? deadline.text : 'no deadline'].filter(Boolean).join(' · ')
     : r.note;
   return (
     <Link to={requestHref(r)} className={s.queueItem}>
       <span className={s.queueMeta}>
-        {prefix}#{r.id} · {statusBadge[r.status].label}
+        {prefix}#{r.id} · {statusInfo(r).label}
       </span>
       <strong className={s.queueTitle}>{r.title}</strong>
       <span className={cx(s.queueDetail, problem && s.queueDetailProblem)}>{detail}</span>

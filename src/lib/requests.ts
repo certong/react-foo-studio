@@ -1,12 +1,12 @@
 import type { StudioRequest } from '@/data/types';
 import { daysBetween, formatShort, parseDay, today } from '@/lib/date';
-import { focusRank, statusBadge } from '@/lib/status';
+import { focusRank, statusInfo } from '@/lib/status';
 import { routes } from '@/routes';
 
 /** Reply window for your-turn items (approve a change, review a preview). */
 export const REPLY_WINDOW_DAYS = 7;
 
-const ENDED = new Set(['live', 'closed', 'dropped']);
+const ENDED = new Set(['live', 'closed']);
 
 /** "20 credits" for a change, "RM 100" for a new page. */
 export function costLabel(credits: number | null): string {
@@ -22,18 +22,17 @@ export function isOpen(r: StudioRequest) {
 }
 
 export function isYourTurn(r: StudioRequest) {
-  return statusBadge[r.status].tone === 'turn';
+  return statusInfo(r).tone === 'turn';
 }
 
 /** Row action label per status (04 Requests). */
 export function actionLabel(r: StudioRequest): string {
   switch (r.status) {
-    case 'approve':
-      return 'Check before and after';
-    case 'preview':
-      return 'Review preview';
-    case 'with_chi':
+    case 'uat':
+      return r.type === 'change' ? 'Check before and after' : 'Review preview';
+    case 'pending_chi':
       return 'See details';
+    case 'paused':
     case 'draft':
       return 'Open draft';
     case 'live':
@@ -46,11 +45,10 @@ export function actionLabel(r: StudioRequest): string {
 /** Where a request opens: the page that matches what it's waiting on. */
 export function requestHref(r: StudioRequest): string {
   switch (r.status) {
-    case 'approve':
-      return routes.review(r.id);
-    case 'preview':
-      return routes.preview(r.id);
+    case 'uat':
+      return r.type === 'change' ? routes.review(r.id) : routes.preview(r.id);
     case 'draft':
+    case 'paused':
       return routes.thread(r.id);
     case 'live':
       return r.type === 'change' ? routes.review(r.id) : routes.progress(r.id);
@@ -65,7 +63,7 @@ export function requestHref(r: StudioRequest): string {
  */
 export function byFocus(requests: StudioRequest[]): StudioRequest[] {
   return requests.filter(isOpen).sort((a, b) => {
-    const rank = focusRank[statusBadge[a.status].tone] - focusRank[statusBadge[b.status].tone];
+    const rank = focusRank[statusInfo(a).tone] - focusRank[statusInfo(b).tone];
     if (rank) return rank;
     if (a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
     if (a.deadline || b.deadline) return a.deadline ? -1 : 1;

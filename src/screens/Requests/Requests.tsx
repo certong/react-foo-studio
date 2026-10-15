@@ -1,14 +1,14 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { AppShell, ChatPromptBar, Columns, HeroNumber } from '@/components/Layout';
 import { ButtonLink } from '@/components/Button';
-import { DraftTag, StatusBadge } from '@/components/Badge';
+import { StatusBadge } from '@/components/Badge';
 import { SegmentedSwitch } from '@/components/SegmentedSwitch';
 import { StepTracker } from '@/components/StepTracker';
 import { EmptyState } from '@/components/States';
 import type { StudioRequest } from '@/data/types';
 import { useStudio } from '@/state/studio';
 import { actionLabel, byFocus, isOpen, isYourTurn, requestHref, typeLabel } from '@/lib/requests';
-import { statusBadge } from '@/lib/status';
+import { statusInfo } from '@/lib/status';
 import { stepsFor } from '@/lib/steps';
 import { cx } from '@/lib/cx';
 import { routes } from '@/routes';
@@ -54,7 +54,7 @@ export function Requests() {
   const aside = (
     <>
       <span className={t.label}>How a request moves</span>
-      <p className={s.asideText}>Changes go Plan, Check, Approve, Live. New pages add a Build step. Yellow is your turn; red means Chi is fixing something.</p>
+      <p className={s.asideText}>Changes go Plan, Check, Ready to Check, Live. New pages add a Build step. Yellow is your turn; red means Chi is fixing something.</p>
       <ButtonLink to={routes.chatStart} block className={s.asideCta}>
         New request
       </ButtonLink>
@@ -94,7 +94,7 @@ export function Requests() {
 }
 
 function RequestRow({ r }: { r: StudioRequest }) {
-  const problem = statusBadge[r.status].tone === 'prob';
+  const problem = statusInfo(r).tone === 'prob';
   return (
     <li className={s.row}>
       <div className={s.body}>
@@ -102,7 +102,7 @@ function RequestRow({ r }: { r: StudioRequest }) {
           <span>
             #{r.id} · {typeLabel(r)}
           </span>
-          {r.status === 'draft' ? <DraftTag /> : <StatusBadge status={r.status} />}
+          <StatusBadge request={r} />
         </div>
         <h2 className={s.title}>{r.title}</h2>
         <span className={cx(s.note, problem && s.noteProblem)}>{r.note}</span>
