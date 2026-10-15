@@ -8,9 +8,22 @@ Built with Vite, React 18, TypeScript and CSS Modules. Designed at 1440 × 900; 
 
 ```sh
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5182, mock API
 npm run build      # typecheck + production build
 ```
+
+### Environments
+
+Each mode's backends live in a tracked env file. They're public values only, because everything `VITE_`-prefixed ships in the browser bundle. [`.env.example`](.env.example) documents every key.
+
+| Mode | File | Commands | Studio API | Foo-Auth |
+|---|---|---|---|---|
+| local | `.env.local` (gitignored, copy `.env.example`) | `start:local` | `http://localhost:3002` | `http://localhost:3001` |
+| development | `.env.development` | `dev`, `start:development`, `build:development` | not deployed yet | `api-auth-development.foocertong.com` |
+| uat | `.env.uat` | `build:uat` | not deployed yet | `api-auth.foocertong.com` |
+| production | `.env.production` | `build`, `build:production` | `api.studio.foocertong.com` | `api-auth.foocertong.com` |
+
+A build stops with an error when its mode has no API or auth URL, so a blank host can't ship. The dev server always runs on port **5182**, the studio origin nest-foo-auth allows. `VITE_USE_MOCK_API=true` keeps the screens on the built-in mock until they're wired to the real API.
 
 Sign in with **mei@kopilane.com**, PIN **123456**. Any other PIN shows the "didn't match" error. After 5 wrong tries in a minute the PIN is locked for a minute.
 

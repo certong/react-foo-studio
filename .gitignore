@@ -4,3 +4,7 @@ dist
 .DS_Store
 .env*
 !.env.example
+# Each deployed mode's public URLs are tracked; local overrides are not.
+!.env.development
+!.env.uat
+!.env.production
