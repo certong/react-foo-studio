@@ -11,11 +11,12 @@
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 200ms ease, color 200ms ease, transform 160ms ease;
+  transition: background-color 200ms ease, color 200ms ease, transform 80ms ease;
 }
-.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:active:not(:disabled):not([aria-disabled='true']) { transform: scale(0.97); }
 
-.primary { background: var(--primary); color: #fff; border: 1px solid var(--primary); }
+/* Spec sheet: primary h48 · pad 0 24 · 16/600; secondary h48 · pad 0 22 · 15/600. */
+.primary { padding: 0 24px; font-size: 16px; background: var(--primary); color: #fff; border: 1px solid var(--primary); }
 .primary:hover { background: var(--primary-hover); color: #fff; }
 .secondary { background: #fff; color: var(--ink); border: 1px solid var(--ink); }
 .secondary:hover { background: var(--secondary-hover); color: var(--ink); }
@@ -33,6 +34,7 @@
 .md { height: 48px; }
 .sm { height: 44px; }
 .xs { height: 40px; padding: 0 16px; font-size: 14px; }
+.secondary.lg { font-size: 15px; }
 
 .block { display: flex; width: 100%; }
 

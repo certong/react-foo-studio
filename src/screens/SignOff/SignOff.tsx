@@ -19,8 +19,7 @@ const BUILD_DAYS = 3;
 
 /** 10: sign off a new page. Confirm stays disabled until the terms are ticked; confirming sends the invoice. */
 export function SignOff() {
-  const { id: param } = useParams();
-  const id = Number(param);
+  const { id = '' } = useParams();
   const { threads, requests } = useStudio();
   const navigate = useNavigate();
   const toast = useToast();
@@ -87,7 +86,7 @@ export function SignOff() {
     <AppShell>
       <Columns hero={<HeroNumber value={blocks.length} caption="sections" />} aside={aside} asideWidth={400} asideCard asideClassName={s.aside}>
         <div className={s.intro}>
-          <span className={s.meta}>#{id} · New page</span>
+          <span className={s.meta}>#{thread.number} · New page</span>
           <h1 className={s.h1}>Sign off: {thread.title}</h1>
         </div>
 

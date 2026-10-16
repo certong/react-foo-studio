@@ -2,6 +2,7 @@
 .block { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
 .h1 { margin: 0; font-size: 44px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; text-wrap: balance; }
 .lead { margin: 0; font-size: 18px; line-height: 1.5; color: var(--body); }
+.calm { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
 
 .gapHead { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; color: var(--muted); }
 .gapHead strong { color: var(--ink); }
@@ -27,8 +28,7 @@
 .tagGood { font-size: 13px; font-weight: 600; color: #047857; }
 .tagMuted { font-size: 13px; color: var(--muted); }
 .cardBody { font-size: 14px; line-height: 1.5; color: var(--body); }
-.cardBtn { margin-top: auto; pointer-events: none; }
-.split { font-size: 13px; color: var(--muted); }
+.card .cardBtn { margin-top: auto; font-size: 15px; pointer-events: none; }
 
 .steps { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
 .step { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); font-size: 14px; }

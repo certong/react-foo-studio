@@ -111,7 +111,7 @@ export function History() {
                     <span className={s.date}>{shortDay(x.date)}</span>
                     <div className={s.what}>
                       <span className={s.meta}>
-                        #{x.id} · {x.type === 'new_page' ? 'New page' : 'Text change'} · {x.scope}
+                        #{x.number} · {x.type === 'new_page' ? 'New page' : 'Text change'} · {x.scope}
                       </span>
                       <h3 className={s.title}>{x.title}</h3>
                     </div>

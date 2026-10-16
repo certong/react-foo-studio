@@ -13,7 +13,9 @@ button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--link-hover); }
-:is(a, button, input, textarea, select):focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+/* Buttons and links: 2px blue outline. Text inputs style their own focus (2px ink border, no outline). */
+:is(a, button, select, input[type='checkbox'], input[type='radio']):focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+:is(input:not([type='checkbox']):not([type='radio']), textarea):focus-visible { outline: none; }
 
 .num { font-variant-numeric: tabular-nums; }
 .visually-hidden {

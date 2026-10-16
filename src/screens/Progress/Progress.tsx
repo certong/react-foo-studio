@@ -17,9 +17,9 @@ const STATE_CLASS: Record<StepState, string> = { done: s.done, now: s.now, your_
 
 /** 12: dated timeline. The current step pulses; a failed step is red with "!" and Chi's note. */
 export function Progress() {
-  const { id: param } = useParams();
+  const { id = '' } = useParams();
   const { requests } = useStudio();
-  const r = requests.find((x) => x.id === Number(param));
+  const r = requests.find((x) => x.id === id);
 
   if (!r) {
     return (
@@ -41,7 +41,7 @@ export function Progress() {
         <div className={s.intro}>
           <div className={s.meta}>
             <span>
-              #{r.id} · {typeLabel(r)}
+              #{r.number} · {typeLabel(r)}
             </span>
             <StatusBadge request={r} />
           </div>

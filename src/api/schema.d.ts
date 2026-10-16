@@ -13,7 +13,7 @@ export interface paths {
         };
         /**
          * Account, workspace, site domain, status, credit meter
-         * @description Screen 3, nav
+         * @description Screen 3, nav. Called on every page: served from a 60 s per-workspace cache.
          */
         get: operations["RequestsController_me"];
         put?: never;
@@ -667,9 +667,9 @@ export interface components {
              * @description ba = agent-ba
              * @enum {string}
              */
-            role: "client" | "ba" | "system";
+            role: "client" | "ba";
             content: string;
-            attachmentIds: number[];
+            attachmentIds: string[];
             /** Format: date-time */
             createdAt: string;
         };
@@ -689,15 +689,18 @@ export interface components {
         /** @enum {string} */
         CloseReason: "client_cancelled" | "no_reply" | "agent_closed";
         CreateAttachmentBody: {
-            requestId: number;
+            /** Format: uuid */
+            requestId: string;
             /** @enum {string} */
             purpose: "screenshot" | "sketch";
             /** @enum {string} */
             mime: "image/png" | "image/jpeg" | "image/webp";
+            /** @description At most 5 MB; at most 5 images per request */
             bytes: number;
         };
         CreateAttachmentResponse: {
-            attachmentId: number;
+            /** Format: uuid */
+            attachmentId: string;
             /**
              * Format: uri
              * @description Signed R2 PUT URL
@@ -718,10 +721,11 @@ export interface components {
         CreateQuoteBody: {
             description: string;
             /** @default [] */
-            attachmentIds: number[];
+            attachmentIds: string[];
         };
         CreateQuoteResponse: {
-            quoteId: number;
+            /** Format: uuid */
+            quoteId: string;
             /** Format: date-time */
             createdAt: string;
         };
@@ -739,7 +743,7 @@ export interface components {
         /** @enum {string} */
         CreditAction: "change" | "drop" | "extra_preview";
         CreditsBlock: {
-            /** @description monthly.free + topup.free */
+            /** @description monthly.free + topup.free; held credits are already taken out */
             free: number;
             monthly: {
                 free: number;
@@ -756,12 +760,14 @@ export interface components {
             };
             held: number;
             heldFor: {
-                requestId: number;
+                /** Format: uuid */
+                requestId: string;
+                requestNumber: number;
                 credits: number;
             }[];
         };
         CreditsResponse: {
-            /** @description monthly.free + topup.free */
+            /** @description monthly.free + topup.free; held credits are already taken out */
             free: number;
             monthly: {
                 free: number;
@@ -778,7 +784,9 @@ export interface components {
             };
             held: number;
             heldFor: {
-                requestId: number;
+                /** Format: uuid */
+                requestId: string;
+                requestNumber: number;
                 credits: number;
             }[];
             usageByType: {
@@ -859,7 +867,7 @@ export interface components {
                 short: number;
                 /** Format: date */
                 resetOn: string;
-                draftId: number | null;
+                draftId: string | null;
             };
         };
         Error_NOT_FOUND: {
@@ -914,7 +922,7 @@ export interface components {
             /** @description The one thing to do next; null when nothing is waiting */
             focus: {
                 action: components["schemas"]["RequestAction"];
-                requestId: number | null;
+                requestId: string | null;
                 title: string;
             } | null;
             waitingForYou: components["schemas"]["RequestCard"][];
@@ -933,15 +941,18 @@ export interface components {
         Language: "en" | "ms" | "zh";
         Layout: {
             /** @description thumbnailId */
-            id: number;
+            id: string;
             name: string;
             blocks: components["schemas"]["Block"][];
         };
         LayoutOptionsBody: {
-            /** @description An uploaded sketch */
-            attachmentId?: number;
+            /**
+             * Format: uuid
+             * @description An uploaded sketch
+             */
+            attachmentId?: string;
             /** @description A layout from GET /portal/layouts */
-            thumbnailId?: number;
+            thumbnailId?: string;
         };
         LayoutOptionsResponse: {
             feedback: string[];
@@ -955,19 +966,21 @@ export interface components {
             items: components["schemas"]["Layout"][];
         };
         /** @enum {string} */
-        LedgerKind: "grant" | "charge" | "hold" | "release" | "topup" | "adjust" | "expire";
+        LedgerKind: "grant" | "topup" | "usage" | "adjust" | "refund" | "held";
         LedgerResponse: {
             month: string;
             entries: {
-                id: number;
+                /** @description The ledger row id, or held:<requestId> for a hold */
+                id: string;
                 /** Format: date-time */
                 at: string;
                 kind: components["schemas"]["LedgerKind"];
                 /** @description Signed: + adds, − spends; a hold shows the amount set aside */
                 credits: number;
-                /** @description null for holds and releases */
+                /** @description null for held lines */
                 bucket: ("grant" | "topup") | null;
-                requestId: number | null;
+                requestId: string | null;
+                requestNumber: number | null;
                 label: string;
             }[];
         };
@@ -992,7 +1005,7 @@ export interface components {
          *         "site": "kopilane.com"
          *       },
          *       "credits": {
-         *         "free": 125,
+         *         "free": 220,
          *         "monthly": {
          *           "free": 125,
          *           "grant": 200,
@@ -1000,13 +1013,14 @@ export interface components {
          *           "resetOn": "2026-11-01"
          *         },
          *         "topup": {
-         *           "free": 0,
+         *           "free": 95,
          *           "neverExpires": true
          *         },
          *         "held": 20,
          *         "heldFor": [
          *           {
-         *             "requestId": 43,
+         *             "requestId": "0199e5a8-7c00-7a43-9d1e-5b2f0c3a4e43",
+         *             "requestNumber": 43,
          *             "credits": 20
          *           }
          *         ]
@@ -1059,7 +1073,7 @@ export interface components {
         PostMessageBody: {
             text: string;
             /** @default [] */
-            attachmentIds: number[];
+            attachmentIds: string[];
         };
         /**
          * @example {
@@ -1108,7 +1122,9 @@ export interface components {
             badge: string;
             owner: components["schemas"]["Owner"];
             steps: components["schemas"]["Step"][];
-            id: number;
+            /** Format: uuid */
+            id: string;
+            number: number;
             type: components["schemas"]["RequestType"];
             title: string;
             /** @description Set while it is the client’s turn */
@@ -1124,7 +1140,9 @@ export interface components {
             badge: string;
             owner: components["schemas"]["Owner"];
             steps: components["schemas"]["Step"][];
-            id: number;
+            /** Format: uuid */
+            id: string;
+            number: number;
             type: components["schemas"]["RequestType"];
             title: string;
             /** @description Set while it is the client’s turn */
@@ -1209,7 +1227,8 @@ export interface components {
         /** @enum {string} */
         StepState: "done" | "now" | "your_turn" | "problem" | "todo";
         Topup: {
-            id: number;
+            /** Format: uuid */
+            id: string;
             status: components["schemas"]["TopupStatus"];
             /** @description From mapTopupBadge(); requested → "Waiting for payment" */
             badge: string;
@@ -1238,7 +1257,7 @@ export interface components {
             topup: components["schemas"]["Topup"];
         };
         /** @enum {string} */
-        TopupStatus: "requested" | "approved" | "cancelled";
+        TopupStatus: "requested" | "paid" | "approved" | "cancelled";
         UatFeedbackBody: {
             notes: string;
         };
@@ -1283,6 +1302,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error_TOKEN_EXPIRED"];
+                };
+            };
+            /** @description NOT_FOUND: Wrong id, or another client's id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error_NOT_FOUND"];
                 };
             };
             /** @description RATE_LIMITED: Too many calls */
@@ -1555,7 +1583,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1625,7 +1653,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1691,7 +1719,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1810,7 +1838,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1885,7 +1913,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1981,7 +2009,7 @@ export interface operations {
                 "Idempotency-Key": string;
             };
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2164,7 +2192,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2298,7 +2326,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2373,7 +2401,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2448,7 +2476,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2530,7 +2558,7 @@ export interface operations {
                 "Idempotency-Key": string;
             };
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2631,7 +2659,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2774,7 +2802,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2880,7 +2908,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
                 optionId: string;
             };
             cookie?: never;
@@ -2956,7 +2984,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -3025,7 +3053,7 @@ export interface operations {
                 "Idempotency-Key": string;
             };
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -3135,7 +3163,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
                 n: number;
             };
             cookie?: never;
@@ -3202,7 +3230,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -3280,7 +3308,7 @@ export interface operations {
                 "Idempotency-Key": string;
             };
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -3368,7 +3396,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -3446,7 +3474,7 @@ export interface operations {
                 "Idempotency-Key": string;
             };
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -3530,7 +3558,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -3865,7 +3893,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                id: string;
             };
             cookie?: never;
         };

@@ -1,38 +1,44 @@
-.field { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.label { font-size: 14px; font-weight: 600; color: var(--ink); }
+/* Soft filled fields (spec sheet, 15 Oct): grey fill at rest, white with an ink border and soft ring on focus. */
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.label { font-size: 13px; font-weight: 600; color: var(--ink); }
 
 .input {
   width: 100%;
-  height: 56px;
-  padding: 0 16px;
-  border: 1px solid var(--ink);
-  border-radius: var(--r-btn);
-  background: #fff;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r-input);
+  background: var(--input-bg);
   color: var(--ink);
-  font-size: 22px;
+  font-size: 16px;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
-.input::placeholder { color: #94a3b8; }
-.input:focus { outline: 2px solid var(--link); outline-offset: 2px; }
-.input[aria-invalid='true'] { border: 2px solid var(--error); }
+.input::placeholder { color: var(--muted); }
+.input:focus, .input:focus-visible { outline: none; background: #fff; border-color: var(--ink); box-shadow: var(--input-ring); }
+.input[aria-invalid='true'] { background: var(--st-prob-bg); border-color: var(--error); }
+.input[aria-invalid='true']:focus { background: #fff; box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12); }
 
 .error { font-size: 14px; color: var(--error); }
 
 .check { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px; white-space: nowrap; cursor: pointer; }
 .check input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); cursor: pointer; }
 
-.pin { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+/* PIN: 6 boxes 48×48, gap 8, always masked. Error = soft red boxes, no border. */
+.pin { display: grid; grid-template-columns: repeat(6, 48px); gap: 8px; }
 .pinBox {
-  width: 100%;
-  height: 72px;
+  width: 48px;
+  height: 48px;
   padding: 0;
-  border: 1px solid #d1d5db;
-  border-radius: var(--r-btn);
-  background: #fff;
+  border: 1px solid transparent;
+  border-radius: var(--r-input);
+  background: var(--input-bg);
   color: var(--ink);
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 600;
   text-align: center;
-  caret-color: var(--link);
+  caret-color: var(--ink);
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
-.pinBox:focus { outline: 2px solid var(--link); outline-offset: 2px; }
-.pin[data-invalid='true'] .pinBox { border: 2px solid var(--error); }
+.pinBox:focus, .pinBox:focus-visible { outline: none; background: #fff; border-color: var(--ink); box-shadow: var(--input-ring); }
+.pin[data-invalid='true'] .pinBox { background: var(--st-prob-bg); color: var(--error); border-color: transparent; }
+.pin[data-invalid='true'] .pinBox:focus { background: #fff; border-color: var(--error); box-shadow: none; }

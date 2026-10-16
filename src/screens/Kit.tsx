@@ -6,7 +6,7 @@ import { StepTracker } from '@/components/StepTracker';
 import { SegmentedSwitch } from '@/components/SegmentedSwitch';
 import { ChatPromptBar, HeroNumber } from '@/components/Layout';
 import { useStudio } from '@/state/studio';
-import type { ActiveStatus, CloseReason, RequestStatus } from '@/data/types';
+import type { ActiveStatus, CloseReason, CreditsBlock, RequestStatus } from '@/data/types';
 import { mapStatus } from '@/api/mock/status';
 import { routes } from '@/routes';
 import t from '@/styles/type.module.css';
@@ -23,6 +23,14 @@ const STATUSES = (
   ] as Array<{ status: RequestStatus; closeReason?: CloseReason; stoppedAt?: ActiveStatus }>
 ).map((x) => mapStatus({ type: 'change', closeReason: null, ...x }));
 const NAV: NavKey[] = ['home', 'requests', 'credits', 'chat'];
+/** GET /portal/me credits for 13 Not enough credits: 10 monthly left, nothing held, no top-up. */
+const LOW_CREDITS: CreditsBlock = {
+  free: 10,
+  monthly: { free: 10, grant: 200, used: 190, resetOn: '2026-11-01' },
+  topup: { free: 0, neverExpires: true },
+  held: 0,
+  heldFor: [],
+};
 
 /** FS-69 component sheet: every shared piece in each of its states. */
 export function Kit() {
@@ -48,7 +56,7 @@ export function Kit() {
         ))}
         <span className={t.meta}>Low credits (13 Not enough credits): 10 free, nothing set aside</span>
         <div className={s.frame}>
-          <TopBar active="credits" free={10} setAside={0} />
+          <TopBar active="credits" credits={LOW_CREDITS} />
         </div>
       </section>
 
@@ -101,7 +109,7 @@ export function Kit() {
           {requests.map((r) => (
             <div key={r.id} className={s.tracker}>
               <span className={s.row}>
-                <span className={t.meta}>#{r.id} · {r.type === 'new_page' ? 'New page' : 'Change'}</span>
+                <span className={t.meta}>#{r.number} · {r.type === 'new_page' ? 'New page' : 'Change'}</span>
                 <StatusBadge request={r} />
               </span>
               <strong className={t.title}>{r.title}</strong>

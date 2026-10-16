@@ -22,11 +22,13 @@ export const PRICES = {
   maxChanges: 10,
 } as const;
 
-/** Monthly usage for the "Past usage" chart. */
+/** Past months for the Credits trend chart: monthly credits used, top-up credits used, RM paid for top-ups. */
 export const usage = [
-  { month: 'Jul', used: 80 },
-  { month: 'Aug', used: 140 },
-  { month: 'Sep', used: 185 },
+  { month: 'May', used: 60, topUpUsed: 0, topUpRm: 0 },
+  { month: 'Jun', used: 90, topUpUsed: 0, topUpRm: 0 },
+  { month: 'Jul', used: 80, topUpUsed: 0, topUpRm: 0 },
+  { month: 'Aug', used: 200, topUpUsed: 5, topUpRm: 20 },
+  { month: 'Sep', used: 185, topUpUsed: 0, topUpRm: 0 },
 ];
 
 const openingHours: ReviewChange[] = [
@@ -74,11 +76,16 @@ export const sketchPlan: PageBlock[] = [
   { kind: 'Photo gallery', title: 'not a block on your site yet', unmatched: true },
 ];
 
+/** A stable UUID for seed request #n, so the demo's links don't change between reloads. */
+export const seedId = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
+
 export function seedData(): MockData {
   return {
-    credits: { monthly: 200, free: 125, setAside: 20, used: 55, topUp: 0, resetDate: '2026-11-01', topUpRequest: 'none' },
+    // State B from the spec sheet: 220 free = 125 monthly + 95 top-up left from August.
+    credits: { monthly: 200, free: 220, setAside: 20, used: 55, topUp: 95, resetDate: '2026-11-01', topUpRequest: 'none' },
     ledger: [
       { id: 'l1', date: '2026-10-01', text: 'Monthly credits', amount: 200, kind: 'add' },
+      { id: 'l0', date: '2026-10-01', text: 'Top-up carried over', amount: 95, kind: 'add' },
       { id: 'l2', date: '2026-10-03', text: '#38 Change · Menu prices', amount: -20, kind: 'spend' },
       { id: 'l3', date: '2026-10-07', text: '#39 Page draft dropped · Gift cards', amount: -15, kind: 'spend' },
       { id: 'l4', date: '2026-10-10', text: '#40 Change · About us text', amount: -20, kind: 'spend' },
@@ -86,7 +93,8 @@ export function seedData(): MockData {
     ],
     requests: [
       {
-        id: 43,
+        id: seedId(43),
+        number: 43,
         type: 'change',
         title: 'Opening hours and WhatsApp',
         shortTitle: 'Opening hours',
@@ -107,7 +115,8 @@ export function seedData(): MockData {
         ],
       },
       {
-        id: 41,
+        id: seedId(41),
+        number: 41,
         type: 'new_page',
         title: 'Catering',
         status: 'uat',
@@ -135,7 +144,8 @@ export function seedData(): MockData {
         ],
       },
       {
-        id: 42,
+        id: seedId(42),
+        number: 42,
         type: 'new_page',
         title: 'Our Story',
         status: 'building',
@@ -156,7 +166,8 @@ export function seedData(): MockData {
         ],
       },
       {
-        id: 37,
+        id: seedId(37),
+        number: 37,
         type: 'new_page',
         title: 'Events',
         status: 'pending_chi',
@@ -183,7 +194,8 @@ export function seedData(): MockData {
         ],
       },
       {
-        id: 40,
+        id: seedId(40),
+        number: 40,
         type: 'change',
         title: 'About us text',
         status: 'live',
@@ -206,9 +218,10 @@ export function seedData(): MockData {
       },
     ],
     history: [
-      { id: 40, type: 'change', title: 'About us text', date: '2026-10-10', scope: '1 paragraph · English and Malay', credits: 20, changes: [] },
+      { id: seedId(40), number: 40, type: 'change', title: 'About us text', date: '2026-10-10', scope: '1 paragraph · English and Malay', credits: 20, changes: [] },
       {
-        id: 38,
+        id: seedId(38),
+        number: 38,
         type: 'change',
         title: 'Menu prices for the new season',
         date: '2026-10-03',
@@ -219,9 +232,10 @@ export function seedData(): MockData {
           { kind: 'text', where: 'Menu · Iced latte', rows: [{ lang: 'English', now: 'RM 11', after: 'RM 12' }] },
         ],
       },
-      { id: 36, type: 'new_page', title: 'New page: Seasonal menu', date: '2026-10-02', scope: '4 sections', credits: null, changes: [] },
+      { id: seedId(36), number: 36, type: 'new_page', title: 'New page: Seasonal menu', date: '2026-10-02', scope: '4 sections', credits: null, changes: [] },
       {
-        id: 35,
+        id: seedId(35),
+        number: 35,
         type: 'change',
         title: 'Swap the team photo on About',
         date: '2026-09-24',
@@ -230,7 +244,8 @@ export function seedData(): MockData {
         changes: [{ kind: 'visual', where: 'About · Team photo', now: 'existing photo: storefront', after: 'new photo: the team at the bar' }],
       },
       {
-        id: 34,
+        id: seedId(34),
+        number: 34,
         type: 'change',
         title: 'Fix a typo in the footer',
         date: '2026-09-18',
@@ -238,9 +253,10 @@ export function seedData(): MockData {
         credits: 20,
         changes: [{ kind: 'text', where: 'All pages · Footer', rows: [{ lang: 'English', now: 'Open everyday', after: 'Open every day' }] }],
       },
-      { id: 33, type: 'new_page', title: 'New page: Gift cards', date: '2026-09-05', scope: '3 sections', credits: null, changes: [] },
+      { id: seedId(33), number: 33, type: 'new_page', title: 'New page: Gift cards', date: '2026-09-05', scope: '3 sections', credits: null, changes: [] },
       {
-        id: 31,
+        id: seedId(31),
+        number: 31,
         type: 'change',
         title: 'Add GrabFood link',
         date: '2026-08-27',
@@ -249,7 +265,8 @@ export function seedData(): MockData {
         changes: [{ kind: 'text', where: 'All pages · Order online', rows: [{ lang: 'Link', now: '(none)', after: 'food.grab.com/my/kopilane' }] }],
       },
       {
-        id: 30,
+        id: seedId(30),
+        number: 30,
         type: 'change',
         title: 'Merdeka closing notice',
         date: '2026-08-25',
@@ -259,8 +276,9 @@ export function seedData(): MockData {
       },
     ],
     threads: {
-      43: {
-        id: 43,
+      [seedId(43)]: {
+        id: seedId(43),
+        number: 43,
         kind: 'change',
         title: 'Opening hours and WhatsApp',
         savedOn: '2026-10-14',
@@ -280,8 +298,9 @@ export function seedData(): MockData {
           { where: 'All pages · WhatsApp button', old: 'wa.me/60123000111', new: 'wa.me/60123456789' },
         ],
       },
-      44: {
-        id: 44,
+      [seedId(44)]: {
+        id: seedId(44),
+        number: 44,
         kind: 'new_page',
         title: 'Workshops',
         savedOn: '2026-10-14',
@@ -297,8 +316,9 @@ export function seedData(): MockData {
           { id: 'p3', from: 'agent', text: "Here's a plan with 4 sections built from your site's blocks. Add more if you like, then see a preview." },
         ],
       },
-      45: {
-        id: 45,
+      [seedId(45)]: {
+        id: seedId(45),
+        number: 45,
         kind: 'change',
         title: 'Menu prices',
         summary: '4 prices · English and Malay',
