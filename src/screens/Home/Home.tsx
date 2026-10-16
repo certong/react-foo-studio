@@ -100,7 +100,7 @@ function Focus({ r }: { r: StudioRequest }) {
     <>
       <div className={s.meta}>
         <span>
-          #{r.id} · {typeLabel(r)}
+          #{r.number} · {typeLabel(r)}
         </span>
         <StatusBadge request={r} />
       </div>
@@ -147,7 +147,7 @@ function QueueItem({ r, prefix = '' }: { r: StudioRequest; prefix?: string }) {
   return (
     <Link to={requestHref(r)} className={s.queueItem}>
       <span className={s.queueMeta}>
-        {prefix}#{r.id} · {r.badge}
+        {prefix}#{r.number} · {r.badge}
       </span>
       <strong className={s.queueTitle}>{r.title}</strong>
       <span className={cx(s.queueDetail, problem && s.queueDetailProblem)}>{detail}</span>

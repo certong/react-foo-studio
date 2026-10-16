@@ -16,8 +16,7 @@ import s from './NoCredits.module.css';
 
 /** 13: a text change needs more credits than are free. Nothing is charged; the draft stays saved. */
 export function NoCredits() {
-  const { id: param } = useParams();
-  const id = Number(param);
+  const { id = '' } = useParams();
   const { threads, credits } = useStudio();
   const navigate = useNavigate();
   const toast = useToast();
@@ -49,7 +48,7 @@ export function NoCredits() {
     if (waiting) return;
     setWaiting(true);
     await scheduleDraft(id);
-    toast(`Draft kept. #${id} ${thread.title} starts on ${reset}. Nothing was charged.`);
+    toast(`Draft kept. #${thread.number} ${thread.title} starts on ${reset}. Nothing was charged.`);
     navigate(routes.requests);
   };
 
@@ -60,7 +59,7 @@ export function NoCredits() {
         {[
           ['Request', 'You get a DuitNow ID and reference'],
           [`Pay RM ${PRICES.topUpRm}`, 'From any Malaysian bank app'],
-          [`Chi adds ${PRICES.topUpCredits} credits`, `#${id} ${thread.title} starts right away`],
+          [`Chi adds ${PRICES.topUpCredits} credits`, `#${thread.number} ${thread.title} starts right away`],
         ].map(([title, detail], i) => (
           <li key={title} className={s.step}>
             <span className={s.stepNo}>{i + 1}</span>
@@ -83,7 +82,7 @@ export function NoCredits() {
             plain
             headingLevel="h1"
             title="You have enough credits now"
-            body={`#${id} ${thread.title} needs ${needed} credits and you have ${credits.free} free. Send it from the chat when you're ready.`}
+            body={`#${thread.number} ${thread.title} needs ${needed} credits and you have ${credits.free} free. Send it from the chat when you're ready.`}
             action={{ label: 'Open draft', to: routes.thread(id) }}
           />
         </Columns>
@@ -122,7 +121,7 @@ export function NoCredits() {
           <DraftTag />
           <div className={s.draftWhat}>
             <strong>
-              #{id} {thread.title}
+              #{thread.number} {thread.title}
             </strong>
             <span>
               {summary} · saved {shortDay(thread.savedOn)}

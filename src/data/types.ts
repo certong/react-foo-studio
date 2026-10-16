@@ -7,6 +7,8 @@ import type { components } from '@/api/schema';
 type Schemas = components['schemas'];
 
 export type RequestType = Schemas['RequestType'];
+export type RequestTab = Schemas['RequestTab'];
+export type ListRequestsResponse = Schemas['ListRequestsResponse'];
 export type RequestStatus = Schemas['RequestStatus'];
 export type CloseReason = Schemas['CloseReason'];
 export type StatusKey = Schemas['StatusKey'];
@@ -88,7 +90,10 @@ export interface RequestExtras {
 
 /** What the mock stores: the database view of a request, before the status is mapped. */
 export interface RequestRow extends RequestExtras {
-  id: number;
+  /** UUID, as the API keys requests. */
+  id: string;
+  /** The "#43" the client sees. */
+  number: number;
   type: RequestType;
   title: string;
   status: RequestStatus;
@@ -104,8 +109,12 @@ export interface RequestRow extends RequestExtras {
 /** What screens see: a contract RequestCard (statusKey, badge, owner, steps[]) plus the mock's extras. */
 export type StudioRequest = RequestCard & RequestExtras;
 
+/** A row on the Requests list: the API's card, plus the mock's extras while the screen is on the mock. */
+export type RequestListItem = RequestCard & Partial<RequestExtras>;
+
 export interface PastRequest {
-  id: number;
+  id: string;
+  number: number;
   type: RequestType;
   title: string;
   /** YYYY-MM-DD it went live. */
@@ -170,7 +179,9 @@ export interface PlannedChange {
 }
 
 export interface Thread {
-  id: number;
+  /** The request's id; a thread is the chat behind one request. */
+  id: string;
+  number: number;
   kind: RequestType;
   title: string;
   messages: ChatMessage[];
@@ -197,7 +208,7 @@ export interface MockData {
   ledger: LedgerEntry[];
   requests: RequestRow[];
   history: PastRequest[];
-  threads: Record<number, Thread>;
+  threads: Record<string, Thread>;
 }
 
 /** What screens read: the same data, with every request mapped to the contract shape. */

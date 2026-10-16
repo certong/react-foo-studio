@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { config } from '@/config';
-import { fetchMe, MeError } from '@/api/me';
+import { fetchMe } from '@/api/me';
+import { PortalError, toPortalError } from '@/api/portal';
 import type { MeResponse } from '@/data/types';
 import { useSession } from './session';
 import { useStudio } from './studio';
@@ -9,7 +10,7 @@ export interface MeValue {
   /** Account, workspace and credits. Null while loading, when signed out, or after a failure. */
   me: MeResponse | null;
   loading: boolean;
-  error: MeError | null;
+  error: PortalError | null;
   /** Reads /portal/me again, e.g. after something changed the credits. Keeps the old value meanwhile. */
   reload: () => void;
 }
@@ -21,7 +22,7 @@ function ApiMeProvider({ children }: { children: ReactNode }) {
   const { signedIn } = useSession();
   const [me, setMe] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<MeError | null>(null);
+  const [error, setError] = useState<PortalError | null>(null);
   const [version, setVersion] = useState(0);
   const reload = useCallback(() => setVersion((v) => v + 1), []);
 
@@ -44,7 +45,7 @@ function ApiMeProvider({ children }: { children: ReactNode }) {
       (err: unknown) => {
         if (!alive) return;
         setMe(null);
-        setError(err instanceof MeError ? err : new MeError('UNREACHABLE', String(err)));
+        setError(toPortalError(err));
         setLoading(false);
       },
     );

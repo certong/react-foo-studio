@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useMe } from '@/state/me';
-import type { MeError } from '@/api/me';
+import type { PortalError } from '@/api/portal';
 import type { CreditsBlock } from '@/data/types';
 import { IconButton } from '@/components/Button';
 import { useSession } from '@/state/session';
@@ -82,7 +82,7 @@ export function TopBar({ active, credits: override }: TopBarProps) {
 }
 
 /** What the meter says while there are no credits to show. */
-function noteFor(loading: boolean, error: MeError | null): string {
+function noteFor(loading: boolean, error: PortalError | null): string {
   if (loading) return 'Loading credits…';
   if (!error) return 'Credits';
   // A valid account that has no Studio workspace yet (FS-86 → 404).

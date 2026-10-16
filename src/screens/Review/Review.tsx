@@ -17,8 +17,7 @@ import t from '@/styles/type.module.css';
 import s from './Review.module.css';
 
 export function Review() {
-  const { id: idParam } = useParams();
-  const id = Number(idParam);
+  const { id = '' } = useParams();
   const { requests, history, credits } = useStudio();
   const navigate = useNavigate();
   const toast = useToast();
@@ -104,7 +103,7 @@ export function Review() {
       >
         <div className={s.intro}>
           <span className={s.meta}>
-            #{id} · {title}
+            #{active?.number ?? past?.number} · {title}
           </span>
           <h1 className={s.h1}>{approvable ? 'Check before and after' : 'What changed'}</h1>
           <p className={s.lead}>

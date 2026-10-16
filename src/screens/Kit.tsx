@@ -109,7 +109,7 @@ export function Kit() {
           {requests.map((r) => (
             <div key={r.id} className={s.tracker}>
               <span className={s.row}>
-                <span className={t.meta}>#{r.id} · {r.type === 'new_page' ? 'New page' : 'Change'}</span>
+                <span className={t.meta}>#{r.number} · {r.type === 'new_page' ? 'New page' : 'Change'}</span>
                 <StatusBadge request={r} />
               </span>
               <strong className={t.title}>{r.title}</strong>

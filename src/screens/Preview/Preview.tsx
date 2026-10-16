@@ -13,8 +13,7 @@ import s from './Preview.module.css';
 
 /** 11: the staged page is the focus. Approve, or send one round of changes (then 10 credits a round). */
 export function Preview() {
-  const { id: param } = useParams();
-  const id = Number(param);
+  const { id = '' } = useParams();
   const { requests, credits } = useStudio();
   const navigate = useNavigate();
   const toast = useToast();
@@ -28,7 +27,7 @@ export function Preview() {
         <Columns hero={<HeroNumber value="—" />} aside={null}>
           <EmptyState
             title="This preview isn't waiting on you"
-            body={r ? `#${r.id} ${r.title} is ${r.status === 'live' ? 'already live' : 'being worked on'}. Its progress shows every step.` : 'We couldn\'t find that preview.'}
+            body={r ? `#${r.number} ${r.title} is ${r.status === 'live' ? 'already live' : 'being worked on'}. Its progress shows every step.` : 'We couldn\'t find that preview.'}
             action={r ? { label: 'See progress', to: routes.progress(r.id) } : { label: 'Go to Requests', to: routes.requests }}
           />
         </Columns>
@@ -99,7 +98,7 @@ export function Preview() {
       >
         <div className={s.intro}>
           <span className={s.meta}>
-            #{r.id} · {typeLabel(r)}
+            #{r.number} · {typeLabel(r)}
           </span>
           <h1 className={s.h1}>{r.title} preview</h1>
         </div>
