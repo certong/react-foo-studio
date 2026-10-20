@@ -8,24 +8,27 @@ Built with Vite, React 18, TypeScript and CSS Modules. Designed at 1440 × 900; 
 
 ```sh
 npm install
-npm run dev        # http://localhost:5182, mock API
-npm run build      # typecheck + production build
+cp .env.example .env   # local backends; gitignored
+npm run start          # http://localhost:5182, mock API
+npm run build          # typecheck + build
 ```
 
-### Environments
+### Configuration
 
-Each mode's backends live in a tracked env file. They're public values only, because everything `VITE_`-prefixed ships in the browser bundle. [`.env.example`](.env.example) documents every key.
+There is one env file: `.env`, gitignored, for local development only. Copy [`.env.example`](.env.example) to make it — that file documents every key. The values are public, because everything `VITE_`-prefixed ships in the browser bundle, so none of them is a secret.
 
-| Mode | File | Commands | Studio API | Foo-Auth |
-|---|---|---|---|---|
-| local | `.env.local` (gitignored, copy `.env.example`) | `start:local` | `http://localhost:3002` | `http://localhost:3001` |
-| development | `.env.development` | `dev`, `start:development`, `build:development` | not deployed yet | `api-auth-development.foocertong.com` |
-| uat | `.env.uat` | `build:uat` | not deployed yet | `api-auth.foocertong.com` |
-| production | `.env.production` | `build`, `build:production` | `api.studio.foocertong.com` | `api-auth.foocertong.com` |
+| Key | Local default | What it is |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:3002` | Studio API (nest-foo-studio); routes are `/portal/...`, no `/api` prefix |
+| `VITE_AUTH_URL` | `http://localhost:3001` | nest-foo-auth host; the app calls `${VITE_AUTH_URL}/api/auth/...` |
+| `VITE_USE_MOCK_API` | `true` | Keeps the screens on the built-in mock until they're wired to the real API |
+| `VITE_USE_MOCK_AUTH` | `false` | `true` signs in with the built-in demo account instead of nest-foo-auth |
 
-A build stops with an error when its mode has no API or auth URL, so a blank host can't ship. The dev server always runs on port **5182**, the studio origin nest-foo-auth allows. `VITE_USE_MOCK_API=true` keeps the screens on the built-in mock until they're wired to the real API.
+**Deployed environments aren't configured here, because Studio has no deploy target yet.** When it gets one, the plan is react-foo-billing's: hand the hosts to the app at runtime so a single build serves development, UAT and production. Per-mode `.env.development` / `.env.uat` / `.env.production` files are deliberately gone — they baked a host into the bundle and needed a rebuild to change one. The hosts that are already known are recorded in `.env.example` for whoever wires that up.
 
-Sign-in goes to **nest-foo-auth** with email + password (FS-87). The access token is held in memory, and Foo-Auth's 12-hour refresh cookie keeps you signed in across reloads. Locally that's `npm run start:local`, with nest-foo-auth on 3001 and its database running. With no auth service, set `VITE_USE_MOCK_AUTH=true` and use the demo account **mei@kopilane.com** / **kopilane**. Email + PIN, "remember this device" and Welcome back need FA-23 in nest-foo-auth first.
+`npm run build` only requires the two URLs when `VITE_USE_MOCK_API=false`, so a clean checkout with no `.env` still builds on the mock; turning the mock off is what makes a real backend mandatory. The dev server always runs on port **5182** — the studio origin nest-foo-auth allows — and refuses to start if that port is taken, so it can't silently drift.
+
+Sign-in goes to **nest-foo-auth** with email + password (FS-87). The access token is held in memory, and Foo-Auth's 12-hour refresh cookie keeps you signed in across reloads. Use `localhost`, never `127.0.0.1`: that cookie is `SameSite=Lax` and only comes back when this app is same-site with the auth host — which also means a deployed auth host won't keep you signed in locally, so run nest-foo-auth on 3001 with its database. With no auth service at all, set `VITE_USE_MOCK_AUTH=true` and use the demo account **mei@kopilane.com** / **kopilane**. Email + PIN, "remember this device" and Welcome back need FA-23 in nest-foo-auth first.
 
 ## Branches
 
