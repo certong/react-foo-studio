@@ -22,11 +22,13 @@ export const PRICES = {
   maxChanges: 10,
 } as const;
 
-/** Monthly usage for the "Past usage" chart. */
+/** Past months for the Credits trend chart: monthly credits used, top-up credits used, RM paid for top-ups. */
 export const usage = [
-  { month: 'Jul', used: 80 },
-  { month: 'Aug', used: 140 },
-  { month: 'Sep', used: 185 },
+  { month: 'May', used: 60, topUpUsed: 0, topUpRm: 0 },
+  { month: 'Jun', used: 90, topUpUsed: 0, topUpRm: 0 },
+  { month: 'Jul', used: 80, topUpUsed: 0, topUpRm: 0 },
+  { month: 'Aug', used: 200, topUpUsed: 5, topUpRm: 20 },
+  { month: 'Sep', used: 185, topUpUsed: 0, topUpRm: 0 },
 ];
 
 const openingHours: ReviewChange[] = [
@@ -76,9 +78,11 @@ export const sketchPlan: PageBlock[] = [
 
 export function seedData(): MockData {
   return {
-    credits: { monthly: 200, free: 125, setAside: 20, used: 55, topUp: 0, resetDate: '2026-11-01', topUpRequest: 'none' },
+    // State B from the spec sheet: 220 free = 125 monthly + 95 top-up left from August.
+    credits: { monthly: 200, free: 220, setAside: 20, used: 55, topUp: 95, resetDate: '2026-11-01', topUpRequest: 'none' },
     ledger: [
       { id: 'l1', date: '2026-10-01', text: 'Monthly credits', amount: 200, kind: 'add' },
+      { id: 'l0', date: '2026-10-01', text: 'Top-up carried over', amount: 95, kind: 'add' },
       { id: 'l2', date: '2026-10-03', text: '#38 Change · Menu prices', amount: -20, kind: 'spend' },
       { id: 'l3', date: '2026-10-07', text: '#39 Page draft dropped · Gift cards', amount: -15, kind: 'spend' },
       { id: 'l4', date: '2026-10-10', text: '#40 Change · About us text', amount: -20, kind: 'spend' },

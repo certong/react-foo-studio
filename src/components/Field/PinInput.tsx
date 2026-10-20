@@ -16,7 +16,7 @@ export interface PinInputHandle {
   focus: () => void;
 }
 
-/** One box per digit. Typing moves forward, Backspace moves back, pasting fills every box. */
+/** One box per digit, masked as •. Typing moves forward, Backspace moves back, pasting fills every box. */
 export const PinInput = forwardRef<PinInputHandle, PinInputProps>(function PinInput(
   { value, onChange, length = 6, invalid, disabled, labelledBy, describedBy },
   ref,
@@ -89,6 +89,7 @@ export const PinInput = forwardRef<PinInputHandle, PinInputProps>(function PinIn
           onKeyDown={(e) => onKeyDown(i, e)}
           onPaste={onPaste}
           onFocus={(e) => e.target.select()}
+          type="password"
           inputMode="numeric"
           pattern="[0-9]*"
           autoComplete={i === 0 ? 'one-time-code' : 'off'}

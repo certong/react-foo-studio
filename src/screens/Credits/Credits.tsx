@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { cancelTopUp, getCredits, requestTopUp } from '@/api/studio';
 import { AppShell, Columns } from '@/components/Layout';
@@ -11,6 +11,7 @@ import type { Credits as CreditsData, LedgerEntry } from '@/data/types';
 import { useStudio } from '@/state/studio';
 import { shortDay, today } from '@/lib/date';
 import { cx } from '@/lib/cx';
+import { creditSplit } from '@/lib/credits';
 import { routes } from '@/routes';
 import t from '@/styles/type.module.css';
 import s from './Credits.module.css';
@@ -35,22 +36,20 @@ export function Credits() {
 
   return (
     <AppShell>
-      <Columns aside={<TopUpAside credits={credits} focus={params.get('topup') === '1'} />}>
-        <div className={s.intro}>
-          <h1 className={s.h1}>Credits</h1>
-          <p className={t.lead}>
-            Your plan gives you {credits.monthly} credits each month. They reset on the 1st and don't roll over.
-          </p>
-        </div>
+      <Columns aside={<TopUpAside credits={credits} focus={params.get('topup') === '1'} />} mainClassName={s.main}>
+        <Header credits={credits} entries={entries} />
 
         {layout === 'dial' ? (
           <DialLayout credits={credits} entries={entries} loaded={loaded} />
         ) : (
           <>
-            <CreditBar credits={credits} loaded={loaded} />
-            <div className={s.cols}>
-              <Ledger entries={entries} />
-              <Usage credits={credits} entries={entries} />
+            <div className={s.cards}>
+              <MonthlyCard credits={credits} loaded={loaded} />
+              <TopUpCard credits={credits} />
+            </div>
+            <div className={s.trendWrap}>
+              <Trend credits={credits} />
+              <Stats credits={credits} />
             </div>
           </>
         )}
@@ -59,25 +58,199 @@ export function Credits() {
   );
 }
 
-function CreditBar({ credits, loaded }: { credits: CreditsData; loaded: boolean }) {
-  const { free, setAside, used, monthly } = credits;
-  const grow = (n: number): CSSProperties => ({ flex: `${n} 1 0` });
+/** Title left; total free right-aligned with the monthly · top-up split. Set-aside credits aren't counted. */
+function Header({ credits, entries }: { credits: CreditsData; entries: LedgerEntry[] }) {
+  const { total, monthlyFree, topUp } = creditSplit(credits);
+  const heldFor = [...new Set(entries.filter((e) => e.kind === 'held').map((e) => /^#\d+/.exec(e.text)?.[0]).filter(Boolean))];
   return (
-    <div className={s.barWrap}>
+    <div className={s.header}>
+      <h1 className={s.h1}>Credits</h1>
+      <div className={s.headTotal}>
+        <span className={s.headNumber}>
+          <strong className="num">{total}</strong>
+          <span>free to use</span>
+        </span>
+        <span className={s.headSplit}>
+          {monthlyFree} monthly · {topUp} top-up
+          {credits.setAside > 0 && ` · ${credits.setAside} set aside${heldFor.length ? ` for ${heldFor.join(', ')}` : ''}, not counted`}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Monthly bucket. The bar is monthly only, so its length always means the plan. On load the free part grows,
+ * then the set-aside part (none with reduced motion). Click the bar to replay.
+ */
+function MonthlyCard({ credits, loaded }: { credits: CreditsData; loaded: boolean }) {
+  const { monthlyFree } = creditSplit(credits);
+  const { setAside, used, monthly } = credits;
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    if (!loaded || shown) return;
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)));
+    return () => cancelAnimationFrame(id);
+  }, [loaded, shown]);
+
+  const pct = (n: number) => `${(Math.max(0, n) / monthly) * 100}%`;
+  return (
+    <section className={s.card} aria-labelledby="monthly-title">
+      <div className={s.cardHead}>
+        <h2 id="monthly-title" className={t.label}>
+          Monthly
+        </h2>
+        <span>Resets {shortDay(credits.resetDate)}</span>
+      </div>
+      <div className={s.cardNumber}>
+        <strong className="num">{monthlyFree}</strong>
+        <span>of {monthly} free</span>
+      </div>
       {loaded ? (
-        <div className={s.bar} role="img" aria-label={`Free ${free}, set aside ${setAside}, used ${used}, out of ${monthly}`}>
-          {free > 0 && <span className={s.free} style={grow(free)}>Free {free}</span>}
-          {setAside > 0 && <span className={s.held} style={grow(setAside)}>Set aside {setAside}</span>}
-          {used > 0 && <span className={s.used} style={grow(used)}>Used {used}</span>}
-        </div>
+        <button
+          type="button"
+          className={s.monthBar}
+          title="Click to replay"
+          aria-label={`Free ${monthlyFree}, set aside ${setAside}, used ${used}, of ${monthly}`}
+          onClick={() => setShown(false)}
+        >
+          <span className={s.monthFree} style={{ width: shown ? pct(monthlyFree) : 0 }} />
+          {setAside > 0 && (
+            <span className={s.monthHeld} style={{ left: `calc(${shown ? pct(monthlyFree) : '0%'} + 2px)`, width: shown ? pct(setAside) : 0 }} />
+          )}
+        </button>
       ) : (
         <div className={s.skeleton} aria-label="Loading credits" />
       )}
-      <div className={s.barFoot}>
-        <span>Top-up {credits.topUp}</span>
-        <span>Next reset {shortDay(credits.resetDate)}</span>
+      <div className={s.legend}>
+        <span>Free {monthlyFree}</span>
+        <span>Set aside {setAside}</span>
+        <span>Used {used}</span>
       </div>
-    </div>
+      <span className={s.cardNote}>Used first. Unused ones are removed on {shortDay(credits.resetDate)}.</span>
+    </section>
+  );
+}
+
+function TopUpCard({ credits }: { credits: CreditsData }) {
+  const { topUp } = creditSplit(credits);
+  const { busy, request } = useTopUpRequest();
+  const waiting = credits.topUpRequest === 'waiting';
+  return (
+    <section className={cx(s.card, s.topUpCard)} aria-labelledby="topup-title">
+      <div className={s.cardHead}>
+        <h2 id="topup-title" className={t.label}>
+          Top-up
+        </h2>
+        <span>Never expire</span>
+      </div>
+      <div className={s.cardNumber}>
+        <strong className="num">{topUp}</strong>
+        <span>credits</span>
+      </div>
+      <span className={s.topUpNote}>
+        {topUp > 0 ? 'Used only after monthly credits run out.' : 'Top up to keep going when monthly credits run out.'}
+      </span>
+      <div className={s.topUpFoot}>
+        {waiting ? (
+          <Badge tone="turn">Waiting for payment</Badge>
+        ) : (
+          <Button size="sm" className={s.topUpBtn} loading={busy} loadingLabel="Requesting…" onClick={request}>
+            Top up
+          </Button>
+        )}
+        <span>
+          {PRICES.topUpCredits} credits = RM {PRICES.topUpRm}
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/** Credits used per month, last 6 months. Bars are drawn to scale: the plan line sits at 160px. */
+function Trend({ credits }: { credits: CreditsData }) {
+  const month = today().toLocaleDateString('en-GB', { month: 'short' });
+  const bars = [
+    ...usage.map((u) => ({ month: u.month, used: u.used, topUp: u.topUpUsed, now: false })),
+    { month: `${month} so far`, used: credits.used, topUp: 0, now: true },
+  ];
+  const px = (n: number) => `${(n / credits.monthly) * TREND_PLAN_PX}px`;
+  return (
+    <section className={s.trend} aria-labelledby="trend-title">
+      <div className={s.trendHead}>
+        <h2 id="trend-title" className={t.label}>
+          Used per month · last {bars.length} months
+        </h2>
+        <span className={s.trendKey} aria-hidden="true">
+          <span>
+            <i className={s.keyMonthly} />
+            Monthly
+          </span>
+          <span>
+            <i className={s.keyTopUp} />
+            Top-up
+          </span>
+          <span>
+            <i className={s.keyPlan} />
+            {credits.monthly} plan
+          </span>
+        </span>
+      </div>
+      <div
+        className={s.trendChart}
+        role="img"
+        aria-label={bars.map((b) => `${b.month}: ${b.used} monthly${b.topUp ? ` + ${b.topUp} top-up` : ''}`).join(', ')}
+      >
+        <span className={s.planLine} aria-hidden="true" />
+        {bars.map((b) => (
+          <div key={b.month} className={s.trendCol} aria-hidden="true">
+            <span className={s.trendValue}>{b.used + b.topUp}</span>
+            {b.topUp > 0 && <span className={s.trendTopUp} style={{ height: px(b.topUp) }} />}
+            <span className={cx(s.trendMonthly, b.topUp > 0 && s.trendUnder, b.now && s.trendNow)} style={{ height: px(b.used) }} />
+          </div>
+        ))}
+      </div>
+      <div className={s.trendLabels} aria-hidden="true">
+        {bars.map((b) => (
+          <span key={b.month}>{b.month}</span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const TREND_PLAN_PX = 160;
+const TIMES = ['never', 'once', 'twice'];
+
+function Stats({ credits }: { credits: CreditsData }) {
+  const months = usage.map((u) => ({ ...u, total: u.used + u.topUpUsed }));
+  const all = months.length + 1;
+  const avg = Math.round(months.reduce((n, m) => n + m.total, 0) / Math.max(1, months.length));
+  const over = months.filter((m) => m.total > credits.monthly);
+  const rm = months.reduce((n, m) => n + m.topUpRm, 0);
+  const toppedUp = months.filter((m) => m.topUpUsed > 0).length;
+  const stats = [
+    { value: String(avg), label: 'used per month on average' },
+    {
+      value: `${over.length} of ${all}`,
+      label: `months went over ${credits.monthly}${over.length ? ` (${over.map((m) => `${m.month}, by ${m.total - credits.monthly}`).join('; ')})` : ''}`,
+    },
+    { value: `RM ${rm}`, label: `spent on top-ups since ${months[0]?.month ?? 'you joined'}` },
+  ];
+  return (
+    <aside className={s.stats} aria-label="Credit stats">
+      {stats.map((x) => (
+        <div key={x.label} className={s.stat}>
+          <strong className="num">{x.value}</strong>
+          <span>{x.label}</span>
+        </div>
+      ))}
+      <p className={s.statsNote}>
+        The {credits.monthly} monthly plan covers a normal month.{' '}
+        {toppedUp === 0 ? "You haven't needed a top-up yet." : `Top-up has only been needed ${TIMES[toppedUp] ?? `${toppedUp} times`}.`}
+      </p>
+    </aside>
   );
 }
 
@@ -144,54 +317,6 @@ function Ledger({ entries }: { entries: LedgerEntry[] }) {
   );
 }
 
-function byType(entries: LedgerEntry[]) {
-  const sum = (re: RegExp) => entries.filter((e) => e.kind === 'spend' && re.test(e.text)).reduce((n, e) => n - e.amount, 0);
-  return [
-    { label: 'Changes', value: sum(/Change/) },
-    { label: 'Drafts dropped', value: sum(/draft dropped/i) },
-    { label: 'Extra previews', value: sum(/Extra (preview|change round)/) },
-  ];
-}
-
-function Usage({ credits, entries }: { credits: CreditsData; entries: LedgerEntry[] }) {
-  const month = today().toLocaleDateString('en-GB', { month: 'long' });
-  const bars = [...usage.map((u) => ({ ...u, now: false })), { month: `${month.slice(0, 3)} so far`, used: credits.used, now: true }];
-  return (
-    <section className={s.section} style={{ gap: 12 }} aria-labelledby="usage-title">
-      <div className={s.sectionHead} style={{ margin: 0 }}>
-        <h2 id="usage-title" className={t.label}>
-          Past usage
-        </h2>
-        <span>Line = {credits.monthly} a month</span>
-      </div>
-      <div className={s.chart} role="img" aria-label={bars.map((b) => `${b.month}: ${b.used}`).join(', ')}>
-        {bars.map((b) => (
-          <div key={b.month} className={s.chartCol}>
-            <strong>{b.used}</strong>
-            <div className={cx(s.chartBar, b.now && s.chartBarNow)} style={{ height: `${Math.min(100, (b.used / credits.monthly) * 100)}%` }} />
-          </div>
-        ))}
-      </div>
-      <div className={s.chartLabels} aria-hidden="true">
-        {bars.map((b) => (
-          <span key={b.month}>{b.month}</span>
-        ))}
-      </div>
-      <h2 className={t.label} style={{ marginTop: 12 }}>
-        {month} by type
-      </h2>
-      <div>
-        {byType(entries).map((r) => (
-          <div key={r.label} className={s.typeRow}>
-            <span>{r.label}</span>
-            <strong className="num">{r.value}</strong>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 type Segment = 'free' | 'held' | 'used';
 const SEGMENTS: Record<Segment, { label: string; color: string; ink: string }> = {
   free: { label: 'Free', color: 'var(--credit-free)', ink: 'var(--credit-free-ink)' },
@@ -202,7 +327,7 @@ const SEGMENTS: Record<Segment, { label: string; color: string; ink: string }> =
 /** Alternate layout: donut with a thickening hover segment, count-up centre and a synced legend. */
 function DialLayout({ credits, entries, loaded }: { credits: CreditsData; entries: LedgerEntry[]; loaded: boolean }) {
   const [hi, setHi] = useState<Segment>('free');
-  const values: Record<Segment, number> = { free: credits.free, held: credits.setAside, used: credits.used };
+  const values: Record<Segment, number> = { free: creditSplit(credits).monthlyFree, held: credits.setAside, used: credits.used };
   const R = 104;
   const C = 2 * Math.PI * R;
   const GAP = 6;
@@ -279,17 +404,10 @@ function DialLayout({ credits, entries, loaded }: { credits: CreditsData; entrie
   );
 }
 
-function TopUpAside({ credits, focus }: { credits: CreditsData; focus: boolean }) {
+/** Request or cancel a 100-credit top-up, with a toast either way. Shared by the Top-up card and the aside. */
+function useTopUpRequest() {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
-  const requestRef = useRef<HTMLButtonElement>(null);
-  const waiting = credits.topUpRequest === 'waiting';
-  const reference = `${session.business.replace(/\s+/g, '').toUpperCase()}-${String(today().getMonth() + 1).padStart(2, '0')}${String(today().getDate()).padStart(2, '0')}`;
-
-  useEffect(() => {
-    if (focus && !waiting) requestRef.current?.focus();
-  }, [focus, waiting]);
-
   const run = async (fn: () => Promise<void>, done: string) => {
     setBusy(true);
     try {
@@ -299,16 +417,33 @@ function TopUpAside({ credits, focus }: { credits: CreditsData; focus: boolean }
       setBusy(false);
     }
   };
+  return {
+    busy,
+    request: () => run(requestTopUp, `Top-up requested. Pay RM ${PRICES.topUpRm} to get ${PRICES.topUpCredits} credits.`),
+    cancel: () => run(cancelTopUp, 'Top-up request cancelled.'),
+  };
+}
+
+function TopUpAside({ credits, focus }: { credits: CreditsData; focus: boolean }) {
+  const { busy, request, cancel } = useTopUpRequest();
+  const requestRef = useRef<HTMLButtonElement>(null);
+  const waiting = credits.topUpRequest === 'waiting';
+  const reference = `${session.business.replace(/\s+/g, '').toUpperCase()}-${String(today().getMonth() + 1).padStart(2, '0')}${String(today().getDate()).padStart(2, '0')}`;
+
+  useEffect(() => {
+    if (focus && !waiting) requestRef.current?.focus();
+  }, [focus, waiting]);
 
   return (
     <>
       <span className={t.label}>Prices</span>
+      <p className={s.order}>How credits are used: monthly first, then top-up.</p>
+      {/* Credits only: the RM 100 new page price shows on 10 Page sign-off. */}
       <div className={s.prices}>
         {[
           ['Change to your site', `${PRICES.change} credits`],
           [`Extra page preview (after ${PRICES.freePreviews})`, `${PRICES.extraPreview} credits`],
-          ['Page draft dropped', `${PRICES.draftDropped} credits`],
-          ['New page', `RM ${PRICES.newPageRm}, invoiced`],
+          ['Draft dropped (change or page)', `${PRICES.draftDropped} credits`],
         ].map(([label, price]) => (
           <div key={label} className={s.price}>
             <span>{label}</span>
@@ -335,7 +470,7 @@ function TopUpAside({ credits, focus }: { credits: CreditsData; focus: boolean }
             </span>
             <span>Chi adds the credits after the payment arrives.</span>
           </div>
-          <Button variant="secondary" size="sm" block loading={busy} loadingLabel="Cancelling…" onClick={() => run(cancelTopUp, 'Top-up request cancelled.')}>
+          <Button variant="secondary" size="sm" block loading={busy} loadingLabel="Cancelling…" onClick={cancel}>
             Cancel request
           </Button>
         </>
@@ -346,7 +481,7 @@ function TopUpAside({ credits, focus }: { credits: CreditsData; focus: boolean }
           className={cx(focus && s.flash)}
           loading={busy}
           loadingLabel="Requesting…"
-          onClick={() => run(requestTopUp, `Top-up requested. Pay RM ${PRICES.topUpRm} to get ${PRICES.topUpCredits} credits.`)}
+          onClick={request}
         >
           Request {PRICES.topUpCredits} credits
         </Button>

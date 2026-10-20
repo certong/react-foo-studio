@@ -52,7 +52,7 @@ export function Requests() {
   const aside = (
     <>
       <span className={t.label}>How a request moves</span>
-      <p className={s.asideText}>Changes go Plan, Check, Ready to Check, Live. New pages add a Build step. Yellow is your turn; red means Chi is fixing something.</p>
+      <p className={s.asideText}>Changes go Plan, Check, Ready to Check, Live. New pages add a Build step. Yellow is your turn; red means On Hold while Chi fixes something.</p>
       <ButtonLink to={routes.chatStart} block className={s.asideCta}>
         New request
       </ButtonLink>

@@ -1,7 +1,10 @@
-/* Standard frame: 64px bar | 1fr | optional bottom bar. Designed at 1440×900; mobile not designed yet. */
+/* Standard frame: 64px bar | 1fr | optional bottom bar. Designed at 1440×900, max-width 1440 centred so wide
+   screens don't stretch the layout. Mobile not designed yet. */
 .shell {
   height: 100vh;
   min-width: 1200px;
+  max-width: var(--frame-max);
+  margin: 0 auto;
   display: grid;
   grid-template-rows: var(--topbar-h) minmax(0, 1fr);
   overflow: hidden;
@@ -14,8 +17,8 @@
 .cols2 { grid-template-columns: minmax(0, 1fr) var(--aside-w, var(--col-aside)); }
 
 .hero { padding: 72px 0 0 48px; display: flex; flex-direction: column; gap: 10px; }
-.main { padding: 72px 64px 48px 32px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; overflow-x: hidden; min-height: 0; }
-.cols2 .main { padding: 56px 64px 48px 48px; }
+.main { padding: 72px 64px 40px 32px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+.main2 { padding: 56px 64px 48px 48px; }
 .aside { border-left: 1px solid var(--line); padding: 72px 40px 40px; display: flex; flex-direction: column; gap: 16px; overflow: auto; min-height: 0; }
 .asideCard { background: var(--card); }
 

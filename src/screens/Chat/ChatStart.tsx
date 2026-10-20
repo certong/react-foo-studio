@@ -55,7 +55,6 @@ export function ChatStart() {
               }}
             >
               {idea}
-              <span aria-hidden="true">→</span>
             </button>
           </li>
         ))}
@@ -68,7 +67,7 @@ export function ChatStart() {
       bottomHeight={120}
       bottomBar={<Composer ref={composer} value={draft} onChange={setDraft} onSend={(text, files) => start('change', text, files)} />}
     >
-      <Columns hero={hero} heroClassName={s.hero} aside={aside} mainClassName={s.startMain}>
+      <Columns hero={hero} heroClassName={s.hero} aside={aside} asideClassName={s.ideasAside} mainClassName={s.startMain}>
         <h1 className={s.h1}>
           Hi {session.name}! What would you like to do on {session.site} today?
         </h1>

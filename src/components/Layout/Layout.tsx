@@ -57,7 +57,7 @@ export function Columns({
   return (
     <div className={cx(s.cols, twoCol && s.cols2)} style={style}>
       {!twoCol && <div className={cx(s.hero, heroClassName)}>{hero}</div>}
-      <Main className={cx(s.main, mainClassName)}>{children}</Main>
+      <Main className={cx(s.main, twoCol && s.main2, mainClassName)}>{children}</Main>
       {aside !== undefined && <aside className={cx(s.aside, asideCard && s.asideCard, asideClassName)}>{aside}</aside>}
     </div>
   );

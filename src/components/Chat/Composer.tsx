@@ -114,7 +114,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={onKeyDown}
         />
-        <Button type="submit" disabled={!canSend} loading={sending} loadingLabel="Sending…">
+        <Button type="submit" className={s.send} disabled={!canSend} loading={sending} loadingLabel="Sending…">
           Send
         </Button>
       </div>

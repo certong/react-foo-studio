@@ -5,8 +5,10 @@ import { StatusBadge } from '@/components/Badge';
 import { EmptyState } from '@/components/States';
 import { session } from '@/data/seed';
 import { useStudio } from '@/state/studio';
+import { creditSplit } from '@/lib/credits';
 import type { StudioRequest } from '@/data/types';
-import { formatLong, greeting, today } from '@/lib/date';
+import { formatLong, greeting, shortDay, today } from '@/lib/date';
+import { routes } from '@/routes';
 import { byFocus, deadlineFor, isProblem, isYourTurn, REPLY_WINDOW_DAYS, requestHref, typeLabel } from '@/lib/requests';
 import { cx } from '@/lib/cx';
 import t from '@/styles/type.module.css';
@@ -70,6 +72,7 @@ export function Home() {
       {inProgress.map((r) => (
         <QueueItem key={r.id} r={r} />
       ))}
+      <CreditsSummary />
     </>
   );
 
@@ -149,5 +152,46 @@ function QueueItem({ r, prefix = '' }: { r: StudioRequest; prefix?: string }) {
       <strong className={s.queueTitle}>{r.title}</strong>
       <span className={cx(s.queueDetail, problem && s.queueDetailProblem)}>{detail}</span>
     </Link>
+  );
+}
+
+/** Credits headline at the foot of the aside, so the waiting task stays the main focus. The bar is monthly only. */
+function CreditsSummary() {
+  const { credits } = useStudio();
+  const { total, monthlyFree, topUp } = creditSplit(credits);
+  const pct = (n: number) => ({ width: `${(Math.max(0, n) / credits.monthly) * 100}%` });
+  return (
+    <section className={s.credits} aria-labelledby="home-credits">
+      <div className={s.creditsHead}>
+        <h2 id="home-credits" className={t.label}>
+          Credits
+        </h2>
+        <Link to={routes.credits}>See credits →</Link>
+      </div>
+      <div className={s.creditsTotal}>
+        <strong className="num">{total}</strong>
+        <span>free to use</span>
+      </div>
+      <span className={s.creditsSplit}>
+        <strong>{monthlyFree} monthly</strong> (resets {shortDay(credits.resetDate)}) · <strong>{topUp} top-up</strong> (never expire)
+      </span>
+      <div className={s.creditsRow}>
+        <div className={s.creditsBar} role="img" aria-label={`Monthly: free ${monthlyFree}, set aside ${credits.setAside}, used ${credits.used} of ${credits.monthly}`}>
+          <span className={s.barFree} style={pct(monthlyFree)} />
+          <span className={s.barHeld} style={pct(credits.setAside)} />
+          <span className={s.barUsed} />
+        </div>
+        {topUp > 0 ? (
+          <span className={s.topUpPill}>+{topUp} top-up</span>
+        ) : (
+          <Link to={`${routes.credits}?topup=1`} className={cx(s.topUpPill, s.topUpEmpty)}>
+            0 top-up · Top up
+          </Link>
+        )}
+      </div>
+      <span className={s.creditsCaption}>
+        Bar is monthly only: free {monthlyFree} · set aside {credits.setAside} · used {credits.used}
+      </span>
+    </section>
   );
 }

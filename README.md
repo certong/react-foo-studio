@@ -24,6 +24,8 @@ There is one env file: `.env`, gitignored, for local development only. Copy [`.e
 | `VITE_USE_MOCK_API` | `true` | Keeps the screens on the built-in mock until they're wired to the real API |
 | `VITE_USE_MOCK_AUTH` | `false` | `true` signs in with the built-in demo account instead of nest-foo-auth |
 
+With `VITE_USE_MOCK_API=false`, the screens already wired to the Studio API call it — so far the top bar, which reads `GET /portal/me` for the workspace, site and credit meter (FS-69 / FS-86). The rest stay on the mock until their backend ticket lands.
+
 **Deployed environments aren't configured here, because Studio has no deploy target yet.** When it gets one, the plan is react-foo-billing's: hand the hosts to the app at runtime so a single build serves development, UAT and production. Per-mode `.env.development` / `.env.uat` / `.env.production` files are deliberately gone — they baked a host into the bundle and needed a rebuild to change one. The hosts that are already known are recorded in `.env.example` for whoever wires that up.
 
 `npm run build` only requires the two URLs when `VITE_USE_MOCK_API=false`, so a clean checkout with no `.env` still builds on the mock; turning the mock off is what makes a real backend mandatory. The dev server always runs on port **5182** — the studio origin nest-foo-auth allows — and refuses to start if that port is taken, so it can't silently drift.
@@ -57,7 +59,7 @@ Both read `../../Nest/nest-foo-studio/openapi.json` by default; set `OPENAPI_FIL
 
 ## Mock API
 
-There's no backend yet. [`src/api/studio.ts`](src/api/studio.ts) is a mock API that keeps its data in memory, saves it to `localStorage` (`studio.data.v2`) and adds realistic delays. [`src/api/auth.ts`](src/api/auth.ts) does the same for sign-in. Screens only use these async calls, so a real backend can replace them without touching the screens.
+The Studio API is arriving one route at a time (so far `GET /portal/me`, which the top bar reads when `VITE_USE_MOCK_API=false`). For everything else, [`src/api/studio.ts`](src/api/studio.ts) is a mock API that keeps its data in memory, saves it to `localStorage` (`studio.data.v4`) and adds realistic delays. [`src/api/auth.ts`](src/api/auth.ts) does the same for sign-in. Screens only use these async calls, so a real backend can replace them without touching the screens.
 
 "Today" is fixed to Wed 14 Oct 2026 so the seed data matches the designs (`DEMO_TODAY` in [`src/lib/date.ts`](src/lib/date.ts)).
 
