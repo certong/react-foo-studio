@@ -22,7 +22,7 @@ export function isProblem(r: Pick<StudioRequest, 'statusKey'>) {
   return badgeLook[r.statusKey].tone === 'prob';
 }
 
-export function isOpen(r: StudioRequest) {
+export function isOpen(r: Pick<StudioRequest, 'status'>) {
   return !ENDED.has(r.status);
 }
 
@@ -31,7 +31,7 @@ export function isYourTurn(r: Pick<StudioRequest, 'statusKey'>) {
 }
 
 /** Row action label per status (04 Requests). */
-export function actionLabel(r: StudioRequest): string {
+export function actionLabel(r: Pick<StudioRequest, 'status' | 'type'>): string {
   switch (r.status) {
     case 'uat':
       return r.type === 'change' ? 'Check before and after' : 'Review preview';
@@ -48,7 +48,7 @@ export function actionLabel(r: StudioRequest): string {
 }
 
 /** Where a request opens: the page that matches what it's waiting on. */
-export function requestHref(r: StudioRequest): string {
+export function requestHref(r: Pick<StudioRequest, 'status' | 'type' | 'id'>): string {
   switch (r.status) {
     case 'uat':
       return r.type === 'change' ? routes.review(r.id) : routes.preview(r.id);
@@ -66,13 +66,13 @@ export function requestHref(r: StudioRequest): string {
  * Open requests in focus order: your turn > problem > working.
  * Within a group, items with a deadline come first (soonest first), then newest.
  */
-export function byFocus(requests: StudioRequest[]): StudioRequest[] {
+export function byFocus<T extends Pick<StudioRequest, 'status' | 'statusKey' | 'replyBy' | 'number'>>(requests: T[]): T[] {
   return requests.filter(isOpen).sort((a, b) => {
     const rank = focusRank[badgeLook[a.statusKey].tone] - focusRank[badgeLook[b.statusKey].tone];
     if (rank) return rank;
     if (a.replyBy && b.replyBy) return a.replyBy.localeCompare(b.replyBy);
     if (a.replyBy || b.replyBy) return a.replyBy ? -1 : 1;
-    return b.id - a.id;
+    return b.number - a.number;
   });
 }
 
@@ -85,7 +85,7 @@ export interface Deadline {
   text: string;
 }
 
-export function deadlineFor(r: StudioRequest, now = today()): Deadline | null {
+export function deadlineFor(r: Pick<StudioRequest, 'replyBy'>, now = today()): Deadline | null {
   if (!r.replyBy) return null;
   const date = parseDay(r.replyBy);
   const daysLeft = Math.max(0, daysBetween(now, date));

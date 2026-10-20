@@ -56,13 +56,32 @@ export function ChatOffline({ onRetry, retrying, plain }: { onRetry: () => void;
   );
 }
 
+/** A list the Studio API couldn't deliver. Nothing is lost; Try again reads it once more. */
+export function LoadFailed({ what, onRetry, retrying, plain }: { what: string; onRetry: () => void; retrying?: boolean; plain?: boolean }) {
+  return (
+    <section className={cx(s.block, s.offline, plain && s.plain)} role="alert">
+      <span className={s.alert}>Couldn't load</span>
+      <h2 className={s.title}>We can't show your {what} right now</h2>
+      <p className={s.body}>Nothing is lost. Try again in a moment, or talk to Chi.</p>
+      <div className={s.actions}>
+        <Button variant="secondary" onClick={onRetry} loading={retrying} loadingLabel="Trying…">
+          Try again
+        </Button>
+        <a className={s.link} href={CHI_WHATSAPP} target="_blank" rel="noopener noreferrer">
+          Talk to Chi
+        </a>
+      </div>
+    </section>
+  );
+}
+
 /** A request whose automatic check failed: red step on the shared tracker, Chi's note, nothing to do. */
 export function CheckFailed({ request, plain }: { request: StudioRequest; plain?: boolean }) {
   return (
     <section className={cx(s.block, plain && s.plain)}>
       <div className={s.meta}>
         <span>
-          #{request.id} · {typeLabel(request)}
+          #{request.number} · {typeLabel(request)}
         </span>
         <StatusBadge request={request} />
       </div>

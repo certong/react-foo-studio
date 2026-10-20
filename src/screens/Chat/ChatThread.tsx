@@ -26,7 +26,7 @@ export function ChatThread() {
 
   if (newKind) return <NewThread kind={newKind} />;
 
-  const thread = threads[Number(param)];
+  const thread = threads[param];
   if (!thread) {
     return (
       <AppShell>
@@ -44,7 +44,8 @@ function NewThread({ kind }: { kind: RequestType }) {
   const [draft, setDraft] = useState('');
   const start = useStartChat();
   const virtual: ThreadData = {
-    id: 0,
+    id: '',
+    number: 0,
     kind,
     title: kind === 'new_page' ? 'New page' : 'New change',
     savedOn: '',
@@ -117,7 +118,7 @@ function Layout({ thread, request, composer, aside, after }: { thread: ThreadDat
     <>
       <span className={t.label}>agent-ba</span>
       <span className={s.heroMeta}>
-        {thread.id ? `#${thread.id} · ` : ''}
+        {thread.number ? `#${thread.number} · ` : ''}
         {thread.kind === 'new_page' ? `New page${thread.title !== 'New page' ? ` · ${thread.title}` : ''}` : thread.title}
       </span>
       {request ? <StatusBadge request={request} /> : <DraftTag />}
@@ -252,7 +253,7 @@ function PlanPanel({ thread, request }: { thread: ThreadData; request?: StudioRe
         ))}
       </ol>
       {plan.length === 0 && <p className={s.emptyNote}>Tell agent-ba what the page is for, or upload a layout sketch.</p>}
-      {thread.id > 0 && !request && (
+      {thread.id && !request && (
         <button type="button" className={s.addSection} onClick={() => addSection(thread.id)}>
           + Add a section
         </button>
@@ -271,7 +272,7 @@ function PlanPanel({ thread, request }: { thread: ThreadData; request?: StudioRe
           <Button variant="secondary" size="sm" block disabled={plan.length === 0} loading={busy} loadingLabel="Preparing…" onClick={preview}>
             {nextIsFree ? `See preview · ${used} of ${PRICES.freePreviews}` : `See preview · ${PRICES.extraPreview} credits`}
           </Button>
-          {plan.length > 0 && thread.id > 0 ? (
+          {plan.length > 0 && thread.id ? (
             <ButtonLink to={routes.signOff(thread.id)} block>
               Review and sign off
             </ButtonLink>
