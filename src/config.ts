@@ -1,6 +1,7 @@
 /**
- * Runtime config from the active env file (.env.development, .env.uat, .env.production or
- * .env.local). See .env.example. Everything here is public: it ships in the browser bundle.
+ * Runtime config from the active env file (.env.development, .env.uat, .env.production, or a
+ * .env.<mode>.local override). See .env.example. Everything here is public: it ships in the
+ * browser bundle.
  */
 
 function baseUrl(raw: string | undefined): string | null {

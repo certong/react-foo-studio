@@ -4,9 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "start:local": "vite --mode local-api",
-    "start:development": "vite --mode development",
+    "start": "vite",
     "build": "tsc --noEmit && vite build",
     "build:development": "tsc --noEmit && vite build --mode development",
     "build:uat": "tsc --noEmit && vite build --mode uat",
