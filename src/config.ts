@@ -1,7 +1,6 @@
 /**
- * Runtime config from the active env file (.env.development, .env.uat, .env.production, or a
- * .env.<mode>.local override). See .env.example. Everything here is public: it ships in the
- * browser bundle.
+ * Runtime config from .env, the project's only env file (gitignored; copy .env.example).
+ * Everything here is public: it ships in the browser bundle.
  */
 
 function baseUrl(raw: string | undefined): string | null {
@@ -11,7 +10,7 @@ function baseUrl(raw: string | undefined): string | null {
 }
 
 export const config = {
-  /** Studio API (nest-foo-studio), e.g. `${apiBaseUrl}/portal/me`. Null until the mode's host is set. */
+  /** Studio API (nest-foo-studio), e.g. `${apiBaseUrl}/portal/me`. Null until VITE_API_BASE_URL is set. */
   apiBaseUrl: baseUrl(import.meta.env.VITE_API_BASE_URL),
   /** nest-foo-auth host, e.g. `${authUrl}/api/auth/pin-login`. */
   authUrl: baseUrl(import.meta.env.VITE_AUTH_URL),

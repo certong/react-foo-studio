@@ -6,9 +6,6 @@
   "scripts": {
     "start": "vite",
     "build": "tsc --noEmit && vite build",
-    "build:development": "tsc --noEmit && vite build --mode development",
-    "build:uat": "tsc --noEmit && vite build --mode uat",
-    "build:production": "tsc --noEmit && vite build --mode production",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "api:types": "openapi-typescript \"${OPENAPI_FILE:-../../Nest/nest-foo-studio/openapi.json}\" -o src/api/schema.d.ts",
